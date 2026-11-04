@@ -7,11 +7,11 @@ At midnight, the lights cut out at Bellweather Printworks. When they returned, t
 ## Play the case
 
 1. Examine files and pin them to the evidence board.
-2. Interview suspects about their alibis, the print, and the blackout.
+2. Enter the interview room, choose a suspect, and build a transcript. Follow-up questions unlock after earlier exchanges or after you examine the relevant evidence.
 3. Find the statement that conflicts with the evidence.
 4. Accuse a suspect, choose the method, and cite two examined files.
 
-The suspect is worth 50 points, the method 30, and the two decisive files 10 each. The verdict reveals the full explanation. Reloading the same browser restores your progress.
+The suspect is worth 50 points, the method 30, and the two decisive files 10 each. The closing report reveals the culprit, reconstructs the theft, and compares your choices with the evidence. Reloading the same browser restores your progress and transcripts. Completed saves from the first version still show their original score and explanation.
 
 ## Run locally on Windows
 

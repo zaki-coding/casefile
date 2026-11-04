@@ -11,6 +11,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from .case import CASE, CULPRIT, EXPLANATION, METHOD
+from .solution import DECISIVE_EVIDENCE, reveal
+from .dialogue import LINES, interview_view
 
 app = FastAPI(title="Casefile AI")
 DB_PATH = Path(os.getenv("CASEFILE_DB", Path(__file__).with_name("casefile.sqlite3")))
@@ -98,15 +100,28 @@ def examine(investigation_id: UUID, clue_id: str):
     return state
 
 
+@app.get("/api/investigations/{investigation_id}/interviews/{suspect}")
+def interview_scene(investigation_id: UUID, suspect: str):
+    if suspect not in LINES:
+        raise HTTPException(404, "Suspect not found")
+    with database() as connection:
+        return interview_view(read(connection, investigation_id), suspect)
+
+
 @app.post("/api/investigations/{investigation_id}/interviews")
 def interview(investigation_id: UUID, question: Question):
-    if question.suspect not in SUSPECTS or question.topic not in CASE["topics"]:
+    if question.suspect not in LINES or question.topic not in LINES[question.suspect]:
         raise HTTPException(422, "Unknown suspect or interview topic")
-    entry = {**question.model_dump(),
-             "answer": SUSPECTS[question.suspect]["answers"][question.topic]}
     with edit(investigation_id) as state:
-        if entry not in state["interviews"]:
-            state["interviews"].append(entry)
+        view = interview_view(state, question.suspect)
+        option = next(item for item in view["options"] if item["id"] == question.topic)
+        if option["status"] == "locked":
+            raise HTTPException(409, option["hint"])
+        if option["status"] == "available":
+            line = LINES[question.suspect][question.topic]
+            state["interviews"].append({
+                **question.model_dump(), "question": line.question, "answer": line.answer,
+            })
     return state
 
 
@@ -121,11 +136,12 @@ def accuse(investigation_id: UUID, accusation: Accusation):
         breakdown = {
             "Suspect": 50 if accusation.suspect == CULPRIT else 0,
             "Method": 30 if accusation.method == METHOD else 0,
-            "Evidence": 10 * len(selected & {"badge", "relay"}),
+            "Evidence": 10 * len(selected & DECISIVE_EVIDENCE),
         }
         state["result"] = {
             "score": sum(breakdown.values()), "breakdown": breakdown,
             "solved": accusation.suspect == CULPRIT and accusation.method == METHOD,
             "explanation": EXPLANATION,
+            "details": reveal(accusation.suspect, accusation.method, accusation.evidence),
         }
     return state

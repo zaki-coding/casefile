@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { api, canAccuse, resume, start, type CaseBrief, type Investigation } from './api'
+import { Interview } from './Interview'
+import { Verdict } from './Verdict'
 import './style.css'
 
 const tabs = ['Evidence board', 'Interviews', 'Accusation'] as const
@@ -44,12 +46,12 @@ function App() {
   return <div className="shell">
     <header className="mast"><div className="brand"><span aria-hidden="true">◈</span> CASEFILE<span className="accent"> AI</span></div><div className="label">INVESTIGATION TERMINAL</div></header>
     <main>
-      <section className="hero">
+      {!(state?.result && tab === 'Accusation') && <section className={tab === 'Interviews' ? 'hero compact' : 'hero'}>
         <div className="label accent">CASE 001 / ART THEFT</div>
         <h1>{brief?.title ?? 'Casefile AI'}</h1>
         <div className="label location">{brief?.location}</div>
-        <p>{brief?.brief}</p>
-      </section>
+        {tab !== 'Interviews' && <p>{brief?.brief}</p>}
+      </section>}
       {error && <p className="error" role="alert">{error}</p>}
       {(!brief || !state) && (busy ? <p role="status">Opening dossier…</p> : <button onClick={load}>Retry</button>)}
       {brief && state && <>
@@ -59,42 +61,28 @@ function App() {
           <span>{state.interviews.length} RECORDED ANSWERS</span>
         </div>
         <nav aria-label="Investigation sections">{tabs.map((item, index) =>
-          <button key={item} aria-pressed={tab === item} onClick={() => setTab(item)}><small>0{index + 1}</small> {item}</button>
+          <button key={item} disabled={busy} aria-pressed={tab === item} onClick={() => setTab(item)}><small>0{index + 1}</small> {item}</button>
         )}</nav>
         {tab === 'Evidence board' && <section>
           <h2>Evidence board</h2><p className="muted">Examine files to pin them to your board. Compare them with the interview record.</p>
-          <div className="cards">{brief.evidence.map((clue, index) => <article key={clue.id}>
+          <div className="cards evidence-files">{brief.evidence.map((clue, index) => <article key={clue.id}>
             <div className="label accent">FILE 0{index + 1} {state.board[clue.id] && ' / PINNED'}</div>
             <h3>{clue.title}</h3><p className="muted">{clue.source}</p>
             {state.board[clue.id] ? <p>{state.board[clue.id]}</p> :
               <button disabled={busy || !!state.result} onClick={() => update('/evidence/' + clue.id)}>Examine file →</button>}
           </article>)}</div>
         </section>}
-        {tab === 'Interviews' && <section>
-          <h2>Interview room</h2><p className="muted">Question each suspect and compare their statements with the evidence.</p>
-          <div className="cards">{brief.suspects.map(item => <button className="person" key={item.id} aria-pressed={person === item.id} onClick={() => setPerson(item.id)}>
-            <strong>{item.name}</strong><span>{item.role}</span>
-          </button>)}</div>
-          <div className="questions">{Object.entries(brief.topics).map(([topic, label]) => {
-            const answer = state.interviews.find(entry => entry.suspect === person && entry.topic === topic)
-            return <article key={topic}><h3>{label}</h3>{answer ?
-              <blockquote>{answer.answer}</blockquote> :
-              <button disabled={busy || !!state.result} onClick={() => update('/interviews', { suspect: person, topic })}>Ask question →</button>}</article>
-          })}</div>
-        </section>}
+        {tab === 'Interviews' && <Interview key={state.id + person} id={state.id} person={person}
+          suspects={brief.suspects} closed={!!state.result} onSelect={setPerson} onUpdate={setState} onBusy={setBusy} />}
         {tab === 'Accusation' && <section>
-          {state.result ? <article className="verdict">
-            <div className="label accent">{state.result.solved ? 'CASE SOLVED' : 'CASE UNSOLVED'}</div>
-            <h2>{state.result.score} / 100</h2><p>{state.result.explanation}</p>
-            <dl>{Object.entries(state.result.breakdown).map(([name, score]) => <div key={name}><dt>{name}</dt><dd>{score}</dd></div>)}</dl>
-            <button disabled={busy} onClick={() => void run(async () => {
-              setState(await start())
-              setSelected([])
-              setSuspect('')
-              setMethod('')
-              setTab('Evidence board')
-            })}>Start a new investigation</button>
-          </article> : <>
+          {state.result ? <Verdict result={state.result} busy={busy} onRestart={() => void run(async () => {
+            setState(await start())
+            setSelected([])
+            setSuspect('')
+            setMethod('')
+            setPerson('mara')
+            setTab('Evidence board')
+          })} /> : <>
             <h2>File your accusation</h2><p className="muted">Choose a suspect, a method, and two examined files. Submitting closes this investigation.</p>
             <form onSubmit={event => {
               event.preventDefault()

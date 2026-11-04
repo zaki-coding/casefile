@@ -1,0 +1,32 @@
+.interview { margin-top: 1.7rem; }
+.interview h2 { margin-top: .3rem; }
+.interview-roster { display: grid; grid-template-columns: repeat(3, 1fr); gap: .65rem; margin: 1.2rem 0; }
+.interview-roster button { display: grid; gap: .3rem; text-align: left; padding: .8rem 1rem; }
+.interview-roster button[aria-pressed="true"] { background: #31291e; }
+.interview-stage { display: grid; grid-template-columns: minmax(210px, 32%) minmax(0, 1fr); gap: 1rem; }
+.interview-subject, .interview-record { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #191a18; }
+.interview-subject figure { margin: 0; }
+.interview-caption { padding: 1rem; }
+.interview-caption h3 { font-family: Georgia, serif; font-size: 1.65rem; font-weight: 500; }
+.interview-caption p { margin: 0; color: var(--muted); }
+.interview-record { display: flex; flex-direction: column; }
+.interview-record-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem; padding: 1rem; border-bottom: 1px solid var(--line); color: var(--muted); }
+.interview-transcript { height: clamp(250px, 40vw, 470px); overflow-y: auto; padding: 1rem; scroll-padding: 1rem; }
+.interview-exchange { display: grid; gap: .7rem; margin-top: .7rem; }
+.interview-line { background: #24251f; padding: .65rem .85rem; border-left: 2px solid var(--accent); border-radius: 3px; max-width: 94%; }
+.interview-line p { margin: .25rem 0 0; }
+.interview-line.investigator { margin-left: auto; margin-top: .35rem; border-color: #879e9a; background: #232b2a; }
+.interview-error { padding: 0 1rem 1rem; }
+.interview-prompts { margin-top: 1.25rem; }
+.interview-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: .6rem; }
+.interview-options button { text-align: left; display: grid; gap: .35rem; padding: .8rem; }
+.interview-options small { color: var(--accent); }
+.interview-options button:disabled { opacity: .72; }
+.interview-options button:disabled small { color: var(--muted); }
+@media (max-width: 600px) {
+  .interview-roster { gap: .35rem; }
+  .interview-roster button { padding: .55rem; }
+  .interview-roster .muted { font-size: .8rem; }
+  .interview-stage { grid-template-columns: 1fr; }
+  .interview-subject { display: grid; grid-template-columns: minmax(100px, 36%) 1fr; align-items: center; }
+}

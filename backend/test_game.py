@@ -29,9 +29,16 @@ def test_investigation_survives_new_client_and_scores_solution(client):
     saved = reopened.get(path).json()
     assert set(saved["board"]) == {"badge", "relay"}
     assert len(saved["interviews"]) == 1
+    assert saved["result"] is None
     accusation = {"suspect": "mara", "method": "switch", "evidence": ["badge", "relay"]}
     result = reopened.post(path + "/accusation", json=accusation).json()["result"]
     assert result["solved"] and result["score"] == 100
+    details = result["details"]
+    assert details["culprit"] == details["suspectChoice"] == "Mara Vale"
+    assert details["suspectCorrect"] and details["methodCorrect"]
+    assert [item["id"] for item in details["evidence"]] == ["badge", "relay"]
+    assert all(item["correct"] for item in details["evidence"])
+    assert len(details["timeline"]) == 4
     assert reopened.get(path).json()["result"] == result
     assert reopened.post(path + "/evidence/proof").status_code == 409
     assert reopened.post(path + "/accusation", json=accusation).status_code == 409
@@ -47,3 +54,6 @@ def test_invalid_evidence_leaves_case_open_and_wrong_verdict_scores(client):
     result = client.post(path + "/accusation", json=accusation).json()["result"]
     assert result["solved"] is False
     assert result["score"] == 50
+    assert result["details"]["suspectChoice"] == "Ellis Ward"
+    assert result["details"]["suspectCorrect"] is False
+    assert result["details"]["methodCorrect"] is True

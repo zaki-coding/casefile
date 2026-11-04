@@ -11,8 +11,37 @@ export interface CaseBrief {
 export interface Investigation {
   id: string
   board: Record<string, string>
-  interviews: { suspect: string; topic: string; answer: string }[]
-  result: { score: number; solved: boolean; explanation: string; breakdown: Record<string, number> } | null
+  interviews: InterviewEntry[]
+  result: {
+    score: number
+    solved: boolean
+    explanation: string
+    breakdown: Record<string, number>
+    details?: {
+      culprit: string
+      method: string
+      suspectChoice: string
+      methodChoice: string
+      suspectCorrect: boolean
+      methodCorrect: boolean
+      evidence: { id: string; title: string; correct: boolean }[]
+      timeline: { time: string; title: string; description: string; evidence: string }[]
+    }
+  } | null
+}
+
+interface InterviewEntry {
+  suspect: string
+  topic: string
+  question?: string
+  answer: string
+}
+
+export interface InterviewScene {
+  suspect: string
+  opening: string
+  options: { id: string; label: string; status: 'available' | 'asked' | 'locked'; hint?: string }[]
+  transcript: (InterviewEntry & { question: string })[]
 }
 
 export class ApiError extends Error {
