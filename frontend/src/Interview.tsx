@@ -8,6 +8,8 @@ interface Props {
   suspects: CaseBrief['suspects']
   person: string
   closed: boolean
+  busy: boolean
+  pressureUsed: boolean
   onSelect: (id: string) => void
   onUpdate: (state: Investigation) => void
   onBusy: (busy: boolean) => void
@@ -31,7 +33,7 @@ export function InterviewOptions({ options, closed, disabled, onAsk }: {
   </div>
 }
 
-export function Interview({ id, suspects, person, closed, onSelect, onUpdate, onBusy }: Props) {
+export function Interview({ id, suspects, person, closed, busy, pressureUsed, onSelect, onUpdate, onBusy }: Props) {
   const [scene, setScene] = useState<InterviewScene>()
   const [pending, setPending] = useState('')
   const [error, setError] = useState('')
@@ -46,7 +48,7 @@ export function Interview({ id, suspects, person, closed, onSelect, onUpdate, on
       .then(value => { if (active) setScene(value) })
       .catch(failure => { if (active) setError(failure.message) })
     return () => { active = false }
-  }, [path, person, attempt])
+  }, [path, person, attempt, pressureUsed])
 
   useEffect(() => {
     if (transcript.current) transcript.current.scrollTop = transcript.current.scrollHeight
@@ -73,7 +75,7 @@ export function Interview({ id, suspects, person, closed, onSelect, onUpdate, on
     <p className="muted">Compare accounts, pursue follow-ups, and bring evidence into the room.</p>
     <div className="interview-roster" aria-label="Choose a suspect">
       {suspects.map((item, index) => <button key={item.id} aria-pressed={item.id === person}
-        disabled={!!pending} onClick={() => onSelect(item.id)}>
+        disabled={busy} onClick={() => onSelect(item.id)}>
         <span className="label">0{index + 1}</span>
         <strong>{item.name}</strong><span className="muted">{item.role}</span>
       </button>)}
@@ -106,7 +108,7 @@ export function Interview({ id, suspects, person, closed, onSelect, onUpdate, on
           <button onClick={() => { setError(''); setAttempt(value => value + 1) }}>Refresh transcript</button></div>}
       </div>
     </div>
-    {scene && <InterviewOptions options={scene.options} closed={closed} disabled={!!pending || !!error}
+    {scene && <InterviewOptions options={scene.options} closed={closed} disabled={busy || !!error}
       onAsk={topic => void ask(topic)} />}
   </section>
 }

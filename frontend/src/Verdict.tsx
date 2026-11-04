@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import type { Investigation } from './api'
 import './verdict.css'
 
@@ -8,6 +8,8 @@ interface VerdictProps {
   result: Result
   busy: boolean
   onRestart: () => void
+  title?: string
+  careerReward?: ReactNode
 }
 
 const scoring = [
@@ -28,7 +30,7 @@ function Finding({ label, correct }: { label: string; correct: boolean }) {
   </span>
 }
 
-export function Verdict({ result, busy, onRestart }: VerdictProps) {
+export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof', careerReward }: VerdictProps) {
   const { details } = result
   const heading = useRef<HTMLHeadingElement>(null)
 
@@ -39,7 +41,7 @@ export function Verdict({ result, busy, onRestart }: VerdictProps) {
   return <section className={'closing-dossier ' + (result.solved ? 'is-solved' : 'is-unsolved')} aria-labelledby="closing-title">
     <header className="closing-header">
       <div>
-        <p className="closing-kicker">Final report / The Midnight Proof</p>
+        <p className="closing-kicker">Final report / {title}</p>
         <h2 id="closing-title" ref={heading} tabIndex={-1}>{result.solved ? 'Case Closed' : 'Case Unsolved'}</h2>
         <p>{performance(result)}</p>
       </div>
@@ -94,6 +96,7 @@ export function Verdict({ result, busy, onRestart }: VerdictProps) {
       </div>
     </section>
 
+    {careerReward}
     <div className="closing-actions">
       <button type="button" className="primary" disabled={busy} onClick={onRestart}>{busy ? 'Opening investigation…' : 'Start a new investigation →'}</button>
     </div>

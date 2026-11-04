@@ -4,6 +4,10 @@ const artwork: Readonly<Record<string, string>> = {
   mara: new URL('./portraits/mara.svg', import.meta.url).href,
   ellis: new URL('./portraits/ellis.svg', import.meta.url).href,
   june: new URL('./portraits/june.svg', import.meta.url).href,
+  ivo: new URL('./portraits/ivo.svg', import.meta.url).href,
+  sabine: new URL('./portraits/sabine.svg', import.meta.url).href,
+  noa: new URL('./portraits/noa.svg', import.meta.url).href,
+  rhea: new URL('./portraits/rhea.svg', import.meta.url).href,
 }
 
 interface PortraitProps {

@@ -1,6 +1,6 @@
 .interview { margin-top: 1.7rem; }
 .interview h2 { margin-top: .3rem; }
-.interview-roster { display: grid; grid-template-columns: repeat(3, 1fr); gap: .65rem; margin: 1.2rem 0; }
+.interview-roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: .65rem; margin: 1.2rem 0; }
 .interview-roster button { display: grid; gap: .3rem; text-align: left; padding: .8rem 1rem; }
 .interview-roster button[aria-pressed="true"] { background: #31291e; }
 .interview-stage { display: grid; grid-template-columns: minmax(210px, 32%) minmax(0, 1fr); gap: 1rem; }
@@ -24,7 +24,7 @@
 .interview-options button:disabled { opacity: .72; }
 .interview-options button:disabled small { color: var(--muted); }
 @media (max-width: 600px) {
-  .interview-roster { gap: .35rem; }
+  .interview-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .35rem; }
   .interview-roster button { padding: .55rem; }
   .interview-roster .muted { font-size: .8rem; }
   .interview-stage { grid-template-columns: 1fr; }

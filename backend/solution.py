@@ -1,6 +1,4 @@
-"""Post-submission reveal for The Midnight Proof."""
-
-from .case import CASE, CULPRIT, METHOD
+"""Case 001 reconstruction and shared post-submission reveal."""
 
 DECISIVE_EVIDENCE = {"badge", "relay"}
 TIMELINE = [
@@ -31,19 +29,19 @@ TIMELINE = [
 ]
 
 
-def reveal(suspect, method, evidence):
-    names = {person["id"]: person["name"] for person in CASE["suspects"]}
-    titles = {clue["id"]: clue["title"] for clue in CASE["evidence"]}
+def reveal(suspect, method, evidence, *, case, culprit, correct_method, decisive, timeline):
+    names = {person["id"]: person["name"] for person in case["suspects"]}
+    titles = {clue["id"]: clue["title"] for clue in case["evidence"]}
     return {
-        "culprit": names[CULPRIT],
-        "method": CASE["methods"][METHOD],
+        "culprit": names[culprit],
+        "method": case["methods"][correct_method],
         "suspectChoice": names[suspect],
-        "methodChoice": CASE["methods"][method],
-        "suspectCorrect": suspect == CULPRIT,
-        "methodCorrect": method == METHOD,
+        "methodChoice": case["methods"][method],
+        "suspectCorrect": suspect == culprit,
+        "methodCorrect": method == correct_method,
         "evidence": [
-            {"id": clue_id, "title": titles[clue_id], "correct": clue_id in DECISIVE_EVIDENCE}
+            {"id": clue_id, "title": titles[clue_id], "correct": clue_id in decisive}
             for clue_id in evidence
         ],
-        "timeline": TIMELINE,
+        "timeline": timeline,
     }

@@ -107,8 +107,8 @@ LINES = {
 EVIDENCE_TITLES = {item["id"]: item["title"] for item in CASE["evidence"]}
 
 
-def interview_view(state, suspect):
-    lines = LINES[suspect]
+def interview_view(state, suspect, roster=LINES, openings=OPENINGS, evidence_titles=EVIDENCE_TITLES):
+    lines = roster[suspect]
     transcript = [
         {**entry, "question": entry.get("question") or lines[entry["topic"]].question}
         for entry in state["interviews"]
@@ -120,7 +120,7 @@ def interview_view(state, suspect):
         option = {"id": topic, "label": line.question, "status": "available"}
         missing = [
             *(f"Ask: {lines[previous].question}" for previous in line.after if previous not in asked),
-            *(f"Examine: {EVIDENCE_TITLES[clue]}" for clue in line.evidence if clue not in state["board"]),
+            *(f"Examine: {evidence_titles[clue]}" for clue in line.evidence if clue not in state["board"]),
         ]
         if topic in asked:
             option["status"] = "asked"
@@ -129,7 +129,7 @@ def interview_view(state, suspect):
         elif missing:
             option.update(status="locked", hint=" · ".join(missing))
         if option["status"] == "locked" and line.evidence:
-            option["label"] = f"Discuss the {EVIDENCE_TITLES[line.evidence[0]].lower()}"
+            option["label"] = f"Discuss the {evidence_titles[line.evidence[0]].lower()}"
         options.append(option)
-    return {"suspect": suspect, "opening": OPENINGS[suspect], "options": options,
+    return {"suspect": suspect, "opening": openings[suspect], "options": options,
             "transcript": transcript}

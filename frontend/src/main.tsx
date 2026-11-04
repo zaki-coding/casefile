@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { api, canAccuse, resume, start, type CaseBrief, type Investigation } from './api'
+import {
+  api, canAccuse, rememberInvestigation, resume, start,
+  type CaseBrief, type CaseSummary, type Investigation, type PlayerProfile, type SavedInvestigation,
+} from './api'
+import { AbilityPanel } from './AbilityPanel'
+import { Career, CareerReward } from './Career'
 import { Interview } from './Interview'
 import { Verdict } from './Verdict'
 import './style.css'
+import './progression.css'
 
 const tabs = ['Evidence board', 'Interviews', 'Accusation'] as const
 
@@ -11,7 +17,11 @@ function App() {
   const [brief, setBrief] = useState<CaseBrief>()
   const [state, setState] = useState<Investigation>()
   const [tab, setTab] = useState<typeof tabs[number]>('Evidence board')
-  const [person, setPerson] = useState('mara')
+  const [person, setPerson] = useState('')
+  const [profile, setProfile] = useState<PlayerProfile>()
+  const [cases, setCases] = useState<CaseSummary[]>([])
+  const [archive, setArchive] = useState<SavedInvestigation[]>([])
+  const [roster, setRoster] = useState(false)
   const [suspect, setSuspect] = useState('')
   const [method, setMethod] = useState('')
   const [selected, setSelected] = useState<string[]>([])
@@ -26,43 +36,114 @@ function App() {
     finally { setBusy(false) }
   }
 
+  function enter(saved: Investigation, dossier: CaseBrief) {
+    rememberInvestigation(saved.id)
+    setBrief(dossier)
+    setState(saved)
+    setPerson(dossier.suspects[0].id)
+    setSelected([])
+    setSuspect('')
+    setMethod('')
+    setTab(saved.result ? 'Accusation' : 'Evidence board')
+    setRoster(false)
+  }
+
   function load() {
     void run(async () => {
-      setBrief(await api<CaseBrief>('/case'))
-      const saved = await resume()
-      setState(saved)
-      if (saved.result) setTab('Accusation')
+      const [career, catalog, saves, saved] = await Promise.all([
+        api<PlayerProfile>('/profile'), api<CaseSummary[]>('/cases'),
+        api<SavedInvestigation[]>('/investigations'), resume(),
+      ])
+      if (saved) enter(saved, await api<CaseBrief>('/case/' + saved.caseId))
+      setProfile(career)
+      setCases(catalog)
+      setArchive(saves)
+      setRoster(!saved)
     })
   }
 
   useEffect(load, [])
 
+  function showRoster() {
+    setRoster(true)
+    void run(async () => {
+      const [career, saves] = await Promise.all([
+        api<PlayerProfile>('/profile'), api<SavedInvestigation[]>('/investigations'),
+      ])
+      setProfile(career)
+      setArchive(saves)
+    })
+  }
+
+  function begin(caseId: string, detectiveId: string) {
+    void run(async () => {
+      const dossier = await api<CaseBrief>('/case/' + caseId)
+      enter(await start(caseId, detectiveId), dossier)
+      setProfile(previous => previous && { ...previous, selectedDetective: detectiveId })
+    })
+  }
+
+  function reopen(save: SavedInvestigation) {
+    void run(async () => {
+      const [saved, dossier] = await Promise.all([
+        api<Investigation>('/investigations/' + save.id),
+        api<CaseBrief>('/case/' + save.caseId),
+      ])
+      enter(saved, dossier)
+    })
+  }
+
   function update(path: string, data?: unknown) {
     if (!state) return
-    void run(async () => setState(await api<Investigation>('/investigations/' + state.id + path, 'POST', data)))
+    void run(async () => {
+      const updated = await api<Investigation>('/investigations/' + state.id + path, 'POST', data)
+      setState(updated)
+      if (updated.result) setProfile(await api<PlayerProfile>('/profile'))
+    })
   }
 
   const count = Object.keys(state?.board ?? {}).length
+  const detective = profile?.detectives.find(item => item.id === state?.detectiveId)
   return <div className="shell">
     <header className="mast"><div className="brand"><span aria-hidden="true">◈</span> CASEFILE<span className="accent"> AI</span></div><div className="label">INVESTIGATION TERMINAL</div></header>
     <main>
-      {!(state?.result && tab === 'Accusation') && <section className={tab === 'Interviews' ? 'hero compact' : 'hero'}>
-        <div className="label accent">CASE 001 / ART THEFT</div>
-        <h1>{brief?.title ?? 'Casefile AI'}</h1>
-        <div className="label location">{brief?.location}</div>
-        {tab !== 'Interviews' && <p>{brief?.brief}</p>}
-      </section>}
       {error && <p className="error" role="alert">{error}</p>}
-      {(!brief || !state) && (busy ? <p role="status">Opening dossier…</p> : <button onClick={load}>Retry</button>)}
-      {brief && state && <>
+      {!profile && (busy ? <p role="status">Opening dossier…</p> : <button onClick={load}>Retry</button>)}
+      {profile && roster && <>
+        <Career profile={profile} cases={cases} busy={busy} onStart={begin}
+          onSelect={detectiveId => void run(async () => setProfile(await api<PlayerProfile>(
+            '/profile/detective', 'PUT', { detectiveId },
+          )))}
+          onBack={state ? () => setRoster(false) : undefined} />
+        {archive.length > 0 && <section className="save-archive" aria-labelledby="archive-title">
+          <div className="label accent">DOSSIER ARCHIVE</div>
+          <h2 id="archive-title">Saved investigations</h2>
+          <ul>{archive.map(save => <li key={save.id}><button disabled={busy} onClick={() => reopen(save)}>
+            <strong>{cases.find(item => item.id === save.caseId)?.title ?? save.caseId}</strong>
+            <span className="muted">{profile.detectives.find(item => item.id === save.detectiveId)?.name} · {save.closed ? 'Read verdict' : 'Resume investigation'}</span>
+          </button></li>)}</ul>
+        </section>}
+      </>}
+      {!roster && brief && state && <>
+        {!(state.result && tab === 'Accusation') && <section className={tab === 'Interviews' ? 'hero compact' : 'hero'}>
+          <div className="label accent">CASE {brief.number} / FIELD DOSSIER</div>
+          <h1>{brief.title}</h1>
+          <div className="label location">{brief.location}</div>
+          {tab !== 'Interviews' && <p>{brief.brief}</p>}
+        </section>}
+
         <div className="strip">
           <span><i /> {state.result ? 'CASE CLOSED' : 'INVESTIGATION OPEN'}</span>
           <span>{count}/{brief.evidence.length} EVIDENCE FILES</span>
-          <span>{state.interviews.length} RECORDED ANSWERS</span>
+          <span>{state.interviews.length} RECORDED ANSWERS</span><span>{detective?.name}</span>
         </div>
         <nav aria-label="Investigation sections">{tabs.map((item, index) =>
           <button key={item} disabled={busy} aria-pressed={tab === item} onClick={() => setTab(item)}><small>0{index + 1}</small> {item}</button>
-        )}</nav>
+        )}
+          <button className="investigation-profile" disabled={busy} onClick={showRoster}>Career &amp; cases</button>
+        </nav>
+        {tab !== 'Accusation' && <AbilityPanel key={state.id} state={state} brief={brief} person={person}
+          busy={busy} inInterview={tab === 'Interviews'} onUse={(type, target) => update('/ability', { type, target })} />}
         {tab === 'Evidence board' && <section>
           <h2>Evidence board</h2><p className="muted">Examine files to pin them to your board. Compare them with the interview record.</p>
           <div className="cards evidence-files">{brief.evidence.map((clue, index) => <article key={clue.id}>
@@ -73,16 +154,10 @@ function App() {
           </article>)}</div>
         </section>}
         {tab === 'Interviews' && <Interview key={state.id + person} id={state.id} person={person}
-          suspects={brief.suspects} closed={!!state.result} onSelect={setPerson} onUpdate={setState} onBusy={setBusy} />}
+          suspects={brief.suspects} closed={!!state.result} busy={busy} pressureUsed={state.ability?.type === 'pressure'} onSelect={setPerson} onUpdate={setState} onBusy={setBusy} />}
         {tab === 'Accusation' && <section>
-          {state.result ? <Verdict result={state.result} busy={busy} onRestart={() => void run(async () => {
-            setState(await start())
-            setSelected([])
-            setSuspect('')
-            setMethod('')
-            setPerson('mara')
-            setTab('Evidence board')
-          })} /> : <>
+          {state.result ? <Verdict result={state.result} title={brief.title} busy={busy} onRestart={showRoster}
+            careerReward={state.result.career && <CareerReward reward={state.result.career} profile={profile} />} /> : <>
             <h2>File your accusation</h2><p className="muted">Choose a suspect, a method, and two examined files. Submitting closes this investigation.</p>
             <form onSubmit={event => {
               event.preventDefault()
