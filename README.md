@@ -24,7 +24,44 @@ Each ability is optional and available once per investigation. The first success
 
 The local profile and saved investigations share the SQLite database. The bureau archive can reopen earlier investigations. Existing saves are treated as Case 001 with Adrian, and the earliest saved solved Case 001 attempt receives one-time career credit. Legacy records store creation order but have no completion timestamp.
 
+## Investigation equipment
+
+The bureau's equipment locker previews every tool and its permanent career unlock.
+During a case, open **Equipment**, choose a tool, and select a compatible examination.
+Examine its source files on the evidence board first.
+
+| Equipment | Career points | Interaction |
+| --- | ---: | --- |
+| Investigation Lens | 0 | Select a region of a document or object to inspect |
+| Forensic Kit | 50 | Choose a suitable preservation or trace-comparison method |
+| Digital Evidence Analyzer | 110 | Select two examined records to correlate |
+| Timeline Reconstruction Board | 170 | Move sourced event cards into chronological order |
+
+Both cases contain tailored examinations for all four tools. Results go into the
+case's persistent field notes. They establish constraints and handling context;
+the player still chooses whom to accuse. Equipment and detective abilities are
+independent, and both cases can still be solved with Adrian at zero career points.
+
+Points are never spent. A first 100-point solution unlocks the Forensic Kit; a
+second unique 100-point solution unlocks the Analyzer and Timeline Board. A replay
+grants zero additional points. Lower-scoring solutions can cross fewer milestones;
+with only two cases, a career ending below 170 cannot currently reach every tool.
+Future unique cases can extend progression using the existing reward ledger.
+
+`backend/equipment.py` holds the shared catalog and private case challenges.
+The equipment API validates career access, examined sources, case compatibility,
+selection shape and reconstruction order inside the existing save transaction.
+Only public prompts and choices are returned before success. Findings extend the
+investigation JSON without replacing the SQLite schema or older save data.
+
 ## Run locally on Windows
+
+For a single local server after installing the dependencies below, build the
+interface with `npm.cmd run build` inside `frontend`, then run
+`.\.venv\Scripts\python.exe run_game.py` from the project directory. Open
+[Casefile AI](http://127.0.0.1:8765). This serves the production interface and API
+together; stop it with Ctrl+C. Pass `--port 8766` to choose another local port.
+Your SQLite saves stay in `backend/casefile.sqlite3`.
 
 Install Python 3.13 and Node.js 22.12 or newer. From the project directory, use two PowerShell terminals.
 

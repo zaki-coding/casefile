@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from . import career
+from . import career, equipment
 from .abilities import ability_options, use_ability
 from .cases import CASES
 from .solution import reveal
@@ -45,6 +45,7 @@ def restore(raw_state):
     state.setdefault("caseId", DEFAULT_CASE)
     state.setdefault("detectiveId", career.DEFAULT_DETECTIVE)
     state.setdefault("ability", None)
+    state.setdefault("equipmentFindings", [])
     return state
 
 
@@ -100,6 +101,12 @@ class Ability(BaseModel):
     target: str | None = None
 
 
+class EquipmentUse(BaseModel):
+    toolId: str
+    examinationId: str
+    selection: list[str]
+
+
 @app.get("/api/cases")
 def case_catalog():
     return [case.summary() for case in CASES.values()]
@@ -153,7 +160,8 @@ def start(request: NewInvestigation | None = None):
             detective = career.profile(connection)["selectedDetective"]
         career.select(connection, detective)
         state = {"id": str(uuid4()), "caseId": request.caseId, "detectiveId": detective,
-                 "board": {}, "interviews": [], "ability": None, "result": None}
+                 "board": {}, "interviews": [], "ability": None,
+                 "equipmentFindings": [], "result": None}
         connection.execute("INSERT INTO investigations VALUES (?, ?)", (state["id"], json.dumps(state)))
     return response(state)
 
@@ -207,6 +215,21 @@ def interview(investigation_id: UUID, question: Question):
 def activate_ability(investigation_id: UUID, ability: Ability):
     with edit(investigation_id) as (state, case, _):
         use_ability(state, case, ability.type, ability.target)
+    return response(state)
+
+
+@app.get("/api/investigations/{investigation_id}/equipment")
+def equipment_inventory(investigation_id: UUID):
+    with database() as connection:
+        connection.execute("BEGIN")
+        return equipment.options(read(connection, investigation_id), career.points(connection))
+
+
+@app.post("/api/investigations/{investigation_id}/equipment")
+def use_equipment(investigation_id: UUID, request: EquipmentUse):
+    with edit(investigation_id) as (state, _, connection):
+        equipment.use(state, career.points(connection), request.toolId,
+                      request.examinationId, request.selection)
     return response(state)
 
 

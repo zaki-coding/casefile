@@ -5,13 +5,14 @@ import {
   type CaseBrief, type CaseSummary, type Investigation, type PlayerProfile, type SavedInvestigation,
 } from './api'
 import { AbilityPanel } from './AbilityPanel'
+import { Equipment } from './Equipment'
 import { Career, CareerReward } from './Career'
 import { Interview } from './Interview'
 import { Verdict } from './Verdict'
 import './style.css'
 import './progression.css'
 
-const tabs = ['Evidence board', 'Interviews', 'Accusation'] as const
+const tabs = ['Evidence board', 'Equipment', 'Interviews', 'Accusation'] as const
 
 function App() {
   const [brief, setBrief] = useState<CaseBrief>()
@@ -142,7 +143,7 @@ function App() {
         )}
           <button className="investigation-profile" disabled={busy} onClick={showRoster}>Career &amp; cases</button>
         </nav>
-        {tab !== 'Accusation' && <AbilityPanel key={state.id} state={state} brief={brief} person={person}
+        {(tab === 'Evidence board' || tab === 'Interviews') && <AbilityPanel key={state.id} state={state} brief={brief} person={person}
           busy={busy} inInterview={tab === 'Interviews'} onUse={(type, target) => update('/ability', { type, target })} />}
         {tab === 'Evidence board' && <section>
           <h2>Evidence board</h2><p className="muted">Examine files to pin them to your board. Compare them with the interview record.</p>
@@ -153,6 +154,7 @@ function App() {
               <button disabled={busy || !!state.result} onClick={() => update('/evidence/' + clue.id)}>Examine file →</button>}
           </article>)}</div>
         </section>}
+        {tab === 'Equipment' && <Equipment key={state.id} state={state} brief={brief} busy={busy} onUpdate={setState} />}
         {tab === 'Interviews' && <Interview key={state.id + person} id={state.id} person={person}
           suspects={brief.suspects} closed={!!state.result} busy={busy} pressureUsed={state.ability?.type === 'pressure'} onSelect={setPerson} onUpdate={setState} onBusy={setBusy} />}
         {tab === 'Accusation' && <section>

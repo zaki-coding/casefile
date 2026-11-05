@@ -16,6 +16,7 @@ export interface CaseBrief extends CaseSummary {
 }
 
 export interface PlayerProfile {
+  equipment?: EquipmentTool[]
   points: number
   solvedCases: { caseId: string; score: number }[]
   selectedDetective: string
@@ -26,6 +27,7 @@ export interface PlayerProfile {
 }
 
 export interface CareerRewardData {
+  newEquipmentUnlocks?: string[]
   earned: number
   points: number
   newUnlocks: string[]
@@ -42,6 +44,7 @@ export interface SavedInvestigation {
 }
 
 export interface Investigation {
+  equipmentFindings?: EquipmentFinding[]
   id: string
   caseId: string
   detectiveId: string
@@ -66,6 +69,29 @@ export interface Investigation {
       timeline: { time: string; title: string; description: string; evidence: string }[]
     }
   } | null
+}
+
+export interface EquipmentFinding {
+  id: string; toolId: string; target: string; title: string; message: string
+}
+
+export interface EquipmentTool {
+  id: string; name: string; threshold: number; description: string
+  unlocked: boolean; remaining: number
+}
+
+export interface EquipmentExamination {
+  id: string; target: string; title: string; prompt: string
+  kind: 'lens' | 'forensic' | 'digital' | 'timeline'
+  choices: { id: string; label: string }[]
+  sources: string[]; available: boolean; requirement: string; completed: boolean
+  examinedSources?: string[]
+}
+
+export interface EquipmentInventory {
+  points: number
+  tools: (EquipmentTool & { examinations: EquipmentExamination[] })[]
+  findings: EquipmentFinding[]
 }
 
 interface InterviewEntry {

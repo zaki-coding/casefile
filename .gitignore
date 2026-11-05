@@ -17,3 +17,4 @@ coverage/
 *.pt
 models/
 .DS_Store
+local-server.*.log

@@ -43,7 +43,8 @@ def test_thresholds_and_selection_are_enforced(database_path):
         assert career.award(connection, "003", 89)["nextUnlock"]["id"] == "elias"
         assert unlocked(connection) == {"adrian", "selena"}
         reward = career.award(connection, "004", 1)
-        assert reward == {"earned": 1, "points": 150, "newUnlocks": ["elias"], "nextUnlock": None}
+        assert reward == {"earned": 1, "points": 150, "newUnlocks": ["elias"],
+                          "newEquipmentUnlocks": [], "nextUnlock": None}
         career.select(connection, "elias")
 
     with closing(sqlite3.connect(database_path)) as reopened:

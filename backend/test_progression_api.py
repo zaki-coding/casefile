@@ -79,7 +79,8 @@ def test_first_success_per_case_unlocks_detectives_and_replay_pays_zero(client):
     assert client.put("/api/profile/detective", json={"detectiveId": "elias"}).status_code == 409
 
     second = solve(client, "002", "selena")
-    assert second["career"] == {"earned": 100, "points": 200, "newUnlocks": ["elias"], "nextUnlock": None}
+    assert second["career"] == {"earned": 100, "points": 200, "newUnlocks": ["elias"],
+                                "newEquipmentUnlocks": ["digital", "timeline"], "nextUnlock": None}
     assert second["details"]["culprit"] == "Sabine Vey"
     assert len(second["details"]["timeline"]) == 5
     assert solve(client, "002", "elias")["career"]["earned"] == 0
