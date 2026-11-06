@@ -1,5 +1,5 @@
 .closing-dossier {
-  --closing-seal: #efd19a;
+  --closing-seal: var(--color-brass);
   display: grid;
   margin-top: 1.25rem;
   border: 1px solid var(--line);
@@ -9,7 +9,7 @@
 }
 
 .closing-dossier.is-unsolved {
-  --closing-seal: #f2aa97;
+  --closing-seal: var(--color-red-text);
 }
 
 .closing-header {
@@ -19,17 +19,17 @@
   gap: 1.5rem;
   padding: clamp(1.3rem, 5vw, 3.5rem);
   border-bottom: 1px solid var(--line);
-  background: radial-gradient(ellipse at top right, #76522b45, transparent 60%), #171813;
+  background: radial-gradient(ellipse at top right, color-mix(in srgb, var(--color-brass) 27.06%, transparent), transparent 60%), var(--color-background);
 }
 
 .is-unsolved .closing-header {
-  background: radial-gradient(ellipse at top right, #733c324d, transparent 60%), #1d1716;
+  background: radial-gradient(ellipse at top right, color-mix(in srgb, var(--color-red) 30.2%, transparent), transparent 60%), var(--color-red);
 }
 
 .closing-kicker {
   margin: 0 0 .5rem;
   color: var(--closing-seal);
-  font: 600 .72rem/1.5 ui-monospace, Consolas, monospace;
+  font: 600 .72rem/1.5 var(--font-label);
   letter-spacing: .15em;
   text-transform: uppercase;
 }
@@ -54,17 +54,17 @@
   min-width: 7rem;
   padding: .85rem 1rem;
   color: var(--closing-seal);
-  background: #151510;
+  background: var(--color-inset);
   border: 1px solid currentColor;
   border-radius: 8px;
 }
 
 .closing-score strong {
-  font: 500 clamp(2.8rem, 5vw, 4rem)/1 Georgia, serif;
+  font: 500 clamp(2.8rem, 5vw, 4rem)/1 var(--font-display);
 }
 
 .closing-score span {
-  font: 600 .75rem/1.4 ui-monospace, Consolas, monospace;
+  font: 600 .75rem/1.4 var(--font-label);
   text-transform: uppercase;
 }
 
@@ -78,7 +78,7 @@
 .closing-reveal h3,
 .closing-section > h3 {
   margin: 0 0 .65rem;
-  font: 500 clamp(1.55rem, 4vw, 2.35rem)/1.15 Georgia, serif;
+  font: 500 clamp(1.55rem, 4vw, 2.35rem)/1.15 var(--font-display);
 }
 
 .closing-reveal p:last-child,
@@ -128,7 +128,7 @@
 .closing-time,
 .closing-file {
   color: var(--closing-seal);
-  font: 600 .77rem/1.5 ui-monospace, Consolas, monospace;
+  font: 600 .77rem/1.5 var(--font-label);
 }
 
 .closing-file {
@@ -202,11 +202,11 @@
 }
 
 .closing-finding.is-correct {
-  color: #b8d7a6;
+  color: var(--color-teal-text);
 }
 
 .closing-finding.is-mismatch {
-  color: #f2aa97;
+  color: var(--color-red-text);
 }
 
 @media (max-width: 620px) {

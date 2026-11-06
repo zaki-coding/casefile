@@ -1,20 +1,20 @@
-.career, .career-reward { --career-gold: #edbc78; --career-border: #4c4437; --career-muted: #b9b2a6; }
+.career, .career-reward { --career-gold: var(--color-brass); --career-border: var(--color-border); --career-muted: var(--color-secondary); }
 .career { margin-block: 1.4rem 3rem; }
 .career-banner {
   display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 1rem;
   padding: clamp(1.2rem, 5vw, 3rem); border: 1px solid var(--career-border); border-radius: 8px;
-  background: repeating-linear-gradient(125deg, transparent 0 28px, #edbc7809 29px 30px),
-    radial-gradient(ellipse at top right, #5d462e, #23251f 60%, #191a18);
+  background: repeating-linear-gradient(125deg, transparent 0 28px, color-mix(in srgb, var(--color-brass) 3.53%, transparent) 29px 30px),
+    radial-gradient(ellipse at top right, var(--color-brass), var(--color-raised) 60%, var(--color-inset));
 }
 .career-banner h1 { font-size: clamp(2.45rem, 7vw, 5rem); margin: .35rem 0; }
 .career-banner p { margin: 0; }
 .career-kicker {
-  margin: 0; color: var(--career-gold); font: 700 .72rem/1.45 ui-monospace, Consolas, monospace;
+  margin: 0; color: var(--career-gold); font: 700 .72rem/1.45 var(--font-label);
   letter-spacing: .12em; text-transform: uppercase;
 }
 .career-statline { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
-.career-statline > div { flex: 1 1 120px; padding: .8rem 1rem; border: 1px solid var(--career-border); border-radius: 6px; background: #1e201c; }
-.career-statline strong { display: block; font: 1.65rem Georgia, serif; color: var(--career-gold); }
+.career-statline > div { flex: 1 1 120px; padding: .8rem 1rem; border: 1px solid var(--career-border); border-radius: 6px; background: var(--color-surface); }
+.career-statline strong { display: block; font: 1.65rem var(--font-display); color: var(--career-gold); }
 .career-statline span, .career-progress span { color: var(--career-muted); font-size: .83rem; }
 .career-progress { display: grid; grid-template-columns: 1fr auto; gap: .35rem .75rem; margin-block: .8rem 1.7rem; }
 .career-progress label { font-size: .86rem; }
@@ -23,16 +23,16 @@
 .career h2, .career-reward h2 { margin: .3rem 0 1rem; }
 .career-roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 215px), 1fr)); gap: .9rem; }
 .career-detective { min-width: 0; display: flex; flex-direction: column; overflow: hidden; padding: 0; border-color: var(--career-border); }
-.career-detective.is-selected { border-color: var(--career-gold); box-shadow: inset 0 0 0 1px #edbc7850; }
-.career-portrait { position: relative; background: #1a1d1b; }
+.career-detective.is-selected { border-color: var(--career-gold); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-brass) 31.37%, transparent); }
+.career-portrait { position: relative; background: var(--color-inset); }
 .career-portrait img { display: block; width: 100%; height: auto; aspect-ratio: 280 / 300; object-fit: cover; }
 .career-portrait > span {
   position: absolute; bottom: .65rem; right: .65rem; padding: .3rem .5rem;
-  color: var(--career-gold); background: #161815ee; border: 1px solid var(--career-border);
-  border-radius: 4px; font: 700 .7rem ui-monospace, Consolas, monospace; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--career-gold); background: color-mix(in srgb, var(--color-background) 93.33%, transparent); border: 1px solid var(--career-border);
+  border-radius: 4px; font: 700 .7rem var(--font-label); text-transform: uppercase; letter-spacing: .06em;
 }
 .career-card-body { flex: 1; display: flex; flex-direction: column; padding: 1rem; }
-.career-card-body h3 { font: 1.6rem Georgia, serif; margin: .15rem 0 .45rem; }
+.career-card-body h3 { font: 1.6rem var(--font-display); margin: .15rem 0 .45rem; }
 .career-card-body p { margin: 0 0 .75rem; }
 .career-ability { padding: .65rem 0; border-top: 1px solid var(--career-border); }
 .career-ability strong { color: var(--career-gold); }
@@ -42,22 +42,22 @@
 .career-case-section { margin-top: 2rem; }
 .career-cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: .8rem; }
 .career-cases button { display: grid; align-content: start; gap: .5rem; text-align: left; padding: 1rem; color: inherit; }
-.career-cases button[aria-pressed="true"] { background: #30291f; }
-.career-cases strong { font: 1.45rem Georgia, serif; }
+.career-cases button[aria-pressed="true"] { background: var(--color-raised); }
+.career-cases strong { font: 1.45rem var(--font-display); }
 .career-cases small { color: var(--career-muted); }
 .career-confirm { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; padding-top: 1rem; }
 .career-confirm p { margin: 0; color: var(--career-muted); }
-.career-reward { padding: clamp(1rem, 3vw, 1.7rem); margin-block: 1rem; border: 1px solid var(--career-border); border-radius: 8px; background: #20211c; }
+.career-reward { padding: clamp(1rem, 3vw, 1.7rem); margin-block: 1rem; border: 1px solid var(--career-border); border-radius: 8px; background: var(--color-surface); }
 .career-reward .career-progress { margin-bottom: 0; }
 .career-unlock {
   display: flex; align-items: center; gap: .9rem; padding: .7rem; margin-block: .8rem;
-  border: 1px solid var(--career-gold); border-radius: 6px; background: linear-gradient(120deg, #4c3823, #27251d);
+  border: 1px solid var(--career-gold); border-radius: 6px; background: linear-gradient(120deg, var(--color-brass), var(--color-raised));
   animation: career-reveal .65s ease-out both;
 }
 .career-unlock h3, .career-unlock p { margin: .12rem 0; }
 .career-unlock img { border-radius: 4px; }
 @keyframes career-reveal {
-  from { opacity: 0; transform: translateY(.6rem); box-shadow: 0 0 25px #edbc7870; }
+  from { opacity: 0; transform: translateY(.6rem); box-shadow: 0 0 25px color-mix(in srgb, var(--color-brass) 43.92%, transparent); }
   to { opacity: 1; transform: translateY(0); box-shadow: 0 0 0 transparent; }
 }
 @media (prefers-reduced-motion: reduce) { .career-unlock { animation: none; } }

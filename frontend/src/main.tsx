@@ -11,6 +11,8 @@ import { Interview } from './Interview'
 import { Verdict } from './Verdict'
 import './style.css'
 import './progression.css'
+import './tokens.css'
+import './noir.css'
 
 const tabs = ['Evidence board', 'Equipment', 'Interviews', 'Accusation'] as const
 
@@ -106,7 +108,7 @@ function App() {
   const count = Object.keys(state?.board ?? {}).length
   const detective = profile?.detectives.find(item => item.id === state?.detectiveId)
   return <div className="shell">
-    <header className="mast"><div className="brand"><span aria-hidden="true">◈</span> CASEFILE<span className="accent"> AI</span></div><div className="label">INVESTIGATION TERMINAL</div></header>
+    <header className="mast"><div className="brand"><svg className="bureau-mark" viewBox="0 0 40 48" fill="none" stroke="currentColor" aria-hidden="true"><path d="M20 2 37 9v17c0 9-9 16-17 20C12 42 3 35 3 26V9Z"/><path d="M20 7 32 12v14c0 6-6 12-12 15-6-3-12-9-12-15V12Z" opacity=".4"/><circle cx="18" cy="21" r="7"/><path d="m23 27 6 7M14 21h8M18 17v8"/></svg>CASEFILE<span className="accent"> AI</span></div><div className="label">DETECTIVE BUREAU / INVESTIGATIONS DIVISION</div></header>
     <main>
       {error && <p className="error" role="alert">{error}</p>}
       {!profile && (busy ? <p role="status">Opening dossier…</p> : <button onClick={load}>Retry</button>)}
