@@ -1,0 +1,141 @@
+/* Screen-level framing. Imported after the investigation components. */
+.game-screen{position:relative;min-height:calc(100svh - 170px);padding:clamp(1.5rem,4vw,3.5rem) 0 2.5rem;isolation:isolate}
+.screen-heading{max-width:760px;margin:0 0 clamp(1.8rem,4vw,3rem)}
+.screen-heading h1{font-size:clamp(2.5rem,5.3vw,4.6rem);line-height:1.08;letter-spacing:-.035em;margin:.7rem 0 1rem}
+.screen-heading>p:not(.label){max-width:62ch;color:var(--muted);font-size:1rem;line-height:1.75}
+.screen-heading .label{color:var(--accent);font-size:.68rem}
+.screen-actions,.results-actions{display:flex;align-items:center;justify-content:flex-end;gap:.75rem;flex-wrap:wrap;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--line)}
+.screen-actions>p{margin-right:auto;color:var(--muted);font-size:.85rem}
+.screen-actions button,.screen-actions a,.results-actions button{min-height:46px}
+.menu-back{display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;color:var(--muted);font-size:.8rem;background:transparent;border:0;padding:.4rem 0;margin-bottom:1.5rem}
+.menu-back:hover{color:var(--accent)}
+.screen-progress{display:flex;align-items:center;gap:.75rem;font:600 .64rem/1.5 var(--font-label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 2rem;flex-wrap:wrap}
+.screen-progress span{display:inline-flex;align-items:center;gap:.5rem}.screen-progress .is-active,.screen-progress [aria-current=step]{color:var(--accent)}
+.case-artwork{display:block;width:100%;height:auto;object-fit:cover;background:var(--color-inset)}
+
+/* A quiet, oversized title screen with the location artwork as its backdrop. */
+.main-menu{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);min-height:calc(100svh - 160px);align-items:center;gap:2rem;padding:clamp(2.5rem,7vw,6rem) 0;position:relative;overflow:hidden}
+.main-menu::before{content:'';position:absolute;inset:8% -20% 0 15%;z-index:-2;background:radial-gradient(ellipse at 70% 38%,var(--wash-teal),transparent 65%);pointer-events:none}
+.main-menu .menu-copy{position:relative;z-index:2;max-width:610px}
+.main-menu .menu-copy>.label{color:var(--accent);font-size:.66rem;letter-spacing:.18em}
+.main-menu h1{font-size:clamp(4rem,8vw,7.8rem);line-height:.89;letter-spacing:-.055em;margin:1.4rem 0 1.6rem;font-weight:400}
+.main-menu h1 em{font-weight:400;color:var(--accent)}
+.main-menu .menu-copy>p:not(.label){color:var(--muted);max-width:36ch;line-height:1.8;font-size:1.03rem}
+.main-menu .menu-art{position:absolute;z-index:-1;width:75%;height:100%;right:-18%;top:0;opacity:.8;pointer-events:none;mask-image:linear-gradient(90deg,transparent,black 28%,black 90%,transparent)}
+.main-menu .menu-art .case-artwork{height:100%;width:100%;object-fit:cover;object-position:55% center}
+.main-menu .menu-art::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,var(--color-background),transparent 18%,transparent 70%,var(--color-background))}
+.menu-actions{display:grid;gap:.5rem;max-width:355px;margin-top:2.4rem}
+.menu-actions button,.menu-actions a{display:flex;justify-content:space-between;align-items:center;gap:1.2rem;text-align:left;min-height:60px;padding:1rem 1.2rem;border:1px solid var(--line);background:color-mix(in srgb,var(--color-background) 85%,transparent);text-decoration:none;color:var(--color-text)}
+.menu-actions button:first-child,.menu-actions a:first-child{background:var(--color-brass);border-color:var(--color-brass);color:var(--color-black)}
+.menu-actions button span,.menu-actions a span{display:block;font-size:.93rem;font-weight:600}.menu-actions button small,.menu-actions a small{font:500 .62rem/1.6 var(--font-label);letter-spacing:.04em;opacity:.7}
+.menu-actions button:hover:not(:disabled),.menu-actions a:hover{transform:translateX(3px)}
+
+/* Assignment flow: one focused decision per screen. */
+.selection-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.2rem;align-items:stretch}
+.detective-choice{padding:0;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-panel);background:var(--color-surface);box-shadow:var(--shadow-panel);position:relative;text-align:left;color:var(--color-text)}
+.detective-choice.is-selected,.detective-choice[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.detective-choice>img,.detective-choice>.portrait,.detective-choice .portrait-wrap{display:block;width:100%;height:clamp(200px,25vw,300px);object-fit:cover;object-position:center 20%;background:radial-gradient(ellipse at 50% 38%,var(--color-raised),var(--color-inset))}
+.detective-choice>div,.detective-choice>article{padding:1.2rem;background:transparent;border:0;border-radius:0}
+.detective-choice h2,.detective-choice h3{font:400 1.65rem/1.2 var(--font-display);margin:.5rem 0 .8rem}
+.detective-choice p{font-size:.88rem;color:var(--muted);line-height:1.7}.detective-choice .label{font-size:.62rem;color:var(--accent)}
+.detective-choice button{width:100%;margin-top:.8rem}.detective-choice .locked,.detective-choice .requirement{font:.72rem/1.6 var(--font-label);color:var(--accent)}
+.detective-choice:has(button:disabled) img{filter:saturate(.6)}
+.detective-confirmation{display:grid;grid-template-columns:minmax(230px,.65fr) minmax(0,1fr);gap:clamp(2rem,5vw,5rem);align-items:center;max-width:950px;margin:1rem auto 3rem}
+.detective-confirmation>aside{padding:0;border:1px solid var(--line);background:radial-gradient(ellipse at 50% 40%,var(--color-raised),var(--color-inset));position:relative}
+.detective-confirmation>aside::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 75px #00000055}
+.portrait-large{width:100%;height:auto;max-height:530px;object-fit:contain;display:block}
+.detective-confirmation h1,.detective-confirmation h2{font-size:clamp(2.7rem,5vw,4.5rem);line-height:1.05;margin:.8rem 0 1.2rem}
+.detective-confirmation p{color:var(--muted);line-height:1.8}.detective-confirmation .label{color:var(--accent)}
+.detective-confirmation blockquote,.detective-confirmation .career-ability{margin:1.5rem 0;border-left:2px solid var(--accent);padding:1rem 1.2rem;background:var(--wash-brass)}
+.case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem}
+.case-choice{overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-panel);background:var(--color-surface);padding:0;text-align:left;color:var(--color-text);box-shadow:var(--shadow-panel)}
+.case-choice>.case-artwork,.case-choice>div>.case-artwork{aspect-ratio:3/1.65;object-fit:cover;border-bottom:1px solid var(--line)}
+.case-choice>div:not(:has(>.case-artwork)),.case-choice>article{padding:1.4rem;border:0;background:none}
+.case-choice h2,.case-choice h3{font:400 clamp(1.7rem,3vw,2.4rem)/1.15 var(--font-display);margin:.7rem 0 .9rem}
+.case-choice p{font-size:.9rem;color:var(--muted);line-height:1.75}.case-choice .label{color:var(--accent);font-size:.64rem}
+.case-choice button{margin-top:1rem}.case-choice.is-selected,.case-choice[aria-pressed=true]{border-color:var(--accent)}
+.case-meta{display:flex;flex-wrap:wrap;gap:.65rem 1rem;padding-top:1rem;margin-top:1rem;border-top:1px solid var(--line);font:500 .65rem/1.6 var(--font-label);color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.briefing-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(1.5rem,4vw,3rem);align-items:start}
+.briefing-layout>.case-artwork,.briefing-layout>div>.case-artwork{border:1px solid var(--line);min-height:420px;object-fit:cover;box-shadow:var(--shadow-raised)}
+.briefing-copy{padding:.5rem 0}.briefing-copy>p{color:var(--muted);line-height:1.85}.briefing-copy h2{margin-top:0;font-size:2rem}.briefing-copy .label{color:var(--accent)}
+.briefing-objectives{margin:1.5rem 0;padding:1.3rem 1.5rem;background:var(--color-surface);border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:var(--radius-sm)}
+.briefing-objectives h3{font-size:.95rem;margin-top:0}.briefing-objectives ul,.briefing-objectives ol{padding-left:1.1rem;margin-bottom:0;color:var(--muted);font-size:.85rem;line-height:1.9}
+
+/* Persistent investigation chrome, deliberately distinct from the assignment flow. */
+.game-layout{display:grid;grid-template-columns:205px minmax(0,1fr);gap:clamp(1.5rem,3vw,2.8rem);align-items:start;margin-top:1.8rem}
+.game-rail{position:sticky;top:1rem;min-width:0;padding-right:1.4rem;border-right:1px solid var(--line)}
+.game-rail>.label{font-size:.6rem;color:var(--muted);margin-bottom:1.2rem}.game-rail h2{font-size:1.35rem;line-height:1.3;margin:.5rem 0}.game-rail p{font-size:.78rem;color:var(--muted);line-height:1.65}
+.game-rail nav,.game-nav{display:flex;flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:.35rem;padding:1rem 0;border:0;width:100%}
+.game-nav a,.game-rail nav>a{position:relative;text-decoration:none;display:flex;align-items:center;gap:.6rem;min-height:44px;padding:.7rem .7rem .7rem .85rem;border:1px solid transparent;border-left:2px solid transparent;font:500 .77rem/1.5 var(--font-body);letter-spacing:0;text-transform:none;color:var(--muted);border-radius:0 3px 3px 0}
+.game-nav a small,.game-rail nav>a small{font:500 .58rem/1.3 var(--font-label);color:var(--color-border-strong)}
+.game-nav a:hover,.game-rail nav>a:hover{color:var(--color-text);background:var(--color-surface)}
+.game-nav a.is-active,.game-nav a[aria-current=page],.game-rail nav>a.is-active{color:var(--accent);border-left-color:var(--accent);background:var(--wash-brass)}
+.game-nav a.is-active small,.game-nav a[aria-current=page] small{color:var(--accent)}
+.game-content{min-width:0;padding-bottom:2rem}.game-content>.game-screen{padding-top:0;min-height:60svh}
+.game-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin:0 0 1.6rem;padding-bottom:1.4rem;border-bottom:1px solid var(--line)}
+.game-heading h1{font-size:clamp(2rem,4vw,3rem);line-height:1.15;letter-spacing:-.025em;margin:.4rem 0}.game-heading .label{font-size:.61rem;color:var(--accent)}.game-heading p{color:var(--muted);font-size:.9rem;max-width:62ch;margin-bottom:0}
+.game-context{font:.65rem/1.6 var(--font-label);color:var(--muted);display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;padding:.7rem 0}.game-context strong{font-weight:500;color:var(--accent)}
+.game-topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:1rem 0;border-bottom:1px solid var(--line)}
+.game-topbar .brand{font-size:.85rem}.game-topbar button,.game-topbar a{font-size:.75rem}.game-topbar a{color:var(--muted);text-decoration:none}.game-topbar a:hover{color:var(--accent)}
+.game-content .equipment-header{align-items:flex-start}.game-content .equipment-header .label{font-size:.6rem}.game-content .equipment-workbench{margin-top:0}.game-content .equipment-station{grid-template-columns:220px minmax(0,1fr)}
+.game-content .tool-rack{gap:.5rem}.game-content .tool-card{padding:.8rem}.game-content .tool-card .label{font-size:.56rem}.game-content .tool-card strong{font-size:.84rem}
+.game-content .evidence-files{grid-template-columns:repeat(2,minmax(0,1fr))}.game-content .interview-room{margin-top:0}
+.career-overview{display:grid;gap:1.4rem}.career-overview>.career-statline{margin:0}.career-overview .equipment-collection{margin:0}.career-overview h2{font-size:1.8rem}.career-overview .career-progress{margin-top:0}
+.settings-panel{max-width:700px;display:grid;gap:0;padding:0;border:1px solid var(--line);border-radius:var(--radius-panel);background:var(--color-surface)}
+.settings-panel>label,.settings-panel>div,.settings-panel>section{padding:1.4rem 1.5rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:1.5rem}.settings-panel>:last-child{border-bottom:0}
+.settings-panel label>span,.settings-panel>div>span{display:grid;gap:.5rem}.settings-panel strong{font-size:.92rem;font-weight:500}.settings-panel small,.settings-panel p{color:var(--muted);font-size:.82rem;line-height:1.7;margin:0}.settings-panel input[type=checkbox]{width:1.15rem;height:1.15rem;flex-shrink:0}.settings-panel select{width:auto;min-width:130px;font-size:.85rem}.settings-panel h2{font-size:1.25rem;margin:0}
+.results-actions{justify-content:flex-start}.screen-results .closing-dossier{margin-top:0}.screen-results .closing-actions{display:none}
+
+@media(prefers-reduced-motion:no-preference){[data-motion=full] .game-screen,[data-motion=on] .game-screen,[data-motion=true] .game-screen{animation:screen-enter var(--motion-enter,240ms) ease-out both}.menu-actions button,.menu-actions a,.case-choice,.detective-choice{transition:transform var(--motion-fast,160ms),border-color var(--motion-fast,160ms),background var(--motion-fast,160ms)}@keyframes screen-enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}}
+[data-motion=off] *,[data-motion=reduced] *,[data-motion=false] *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(max-width:1000px){.game-layout{grid-template-columns:170px minmax(0,1fr);gap:1.3rem}.game-rail{padding-right:.8rem}.game-content .equipment-station{grid-template-columns:1fr}.game-content .equipment-manual{border-right:0;border-bottom:1px solid var(--line)}.game-content .tool-rack{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.game-screen{padding-top:1.5rem}.main-menu{grid-template-columns:1fr;min-height:calc(100svh - 140px);padding:3.5rem 0}.main-menu h1{font-size:clamp(4rem,14vw,6.5rem)}.main-menu .menu-art{width:105%;right:-35%;opacity:.42;mask-image:linear-gradient(90deg,transparent,black 20%)}.main-menu .menu-copy>p:not(.label){max-width:32ch}.menu-actions{max-width:340px}.selection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem}.detective-choice>img,.detective-choice>.portrait,.detective-choice .portrait-wrap{height:250px}.case-grid,.briefing-layout{grid-template-columns:1fr}.case-choice>.case-artwork{aspect-ratio:2.2}.briefing-layout>.case-artwork,.briefing-layout>div>.case-artwork{min-height:0;max-height:360px;aspect-ratio:1.8}.detective-confirmation{grid-template-columns:minmax(180px,.7fr) minmax(0,1fr);gap:1.5rem}.game-layout{grid-template-columns:1fr;margin-top:1rem;gap:1.5rem}.game-rail{position:static;border-right:0;border-bottom:1px solid var(--line);padding:0 0 .7rem}.game-rail>h2,.game-rail>p,.game-rail>.label{display:none}.game-rail nav,.game-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.35rem;padding:0}.game-nav a,.game-rail nav>a{font-size:.73rem;min-height:43px;padding:.6rem .55rem;border:1px solid var(--line);border-radius:3px}.game-nav a.is-active,.game-nav a[aria-current=page],.game-rail nav>a.is-active{border-color:var(--edge-brass)}.game-content .game-screen{min-height:45svh}.settings-panel>label,.settings-panel>div,.settings-panel>section{padding:1.1rem;gap:1rem}}
+@media(max-width:480px){.selection-grid{grid-template-columns:1fr}.detective-choice{display:grid;grid-template-columns:110px minmax(0,1fr)}.detective-choice>img,.detective-choice>.portrait,.detective-choice .portrait-wrap{height:100%;min-height:230px;object-fit:cover;object-position:50% 20%}.detective-choice>div,.detective-choice>article{padding:1rem}.detective-choice h2,.detective-choice h3{font-size:1.45rem}.detective-choice p{font-size:.8rem}.detective-confirmation{grid-template-columns:1fr}.detective-confirmation>aside{max-width:240px;margin:auto;width:100%}.portrait-large{max-height:300px}.detective-confirmation h1,.detective-confirmation h2{font-size:2.6rem}.screen-heading h1{font-size:2.5rem}.screen-actions{align-items:stretch}.screen-actions>button,.screen-actions>a{flex:1}.screen-actions>p{flex-basis:100%}.game-content .evidence-files{grid-template-columns:1fr}.game-topbar{gap:.6rem}.game-context{font-size:.58rem}.game-nav a,.game-rail nav>a{font-size:.67rem;gap:.35rem}.game-nav a small{font-size:.5rem}.case-meta{font-size:.6rem}.settings-panel select{min-width:100px}.menu-actions button,.menu-actions a{min-height:57px}.main-menu h1{font-size:4.6rem}}
+@media(prefers-reduced-motion:reduce){.game-screen,.menu-actions button,.menu-actions a,.case-choice,.detective-choice{animation:none!important;transition:none!important}}
+
+/* Shared link controls and concrete screen markup. */
+.brand{text-decoration:none;color:var(--color-text)}
+.game-screen h1:focus{outline:none}
+.screen-menu{padding-top:0;padding-bottom:0}
+.main-menu{padding:1.5rem 0;min-height:calc(100svh - 170px)}
+.main-menu h1{font-size:clamp(3.2rem,7vw,6.1rem);margin:1rem 0 1.2rem}
+.menu-actions{margin-top:1.5rem}
+.menu-actions .menu-option{min-height:54px;padding:.7rem 1.1rem}
+.button-link{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:.7rem 1rem;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);background:var(--color-raised);color:var(--color-text);text-decoration:none;font-size:.9rem;line-height:1.5}
+.button-link:hover{border-color:var(--accent);background:var(--wash-brass);color:var(--accent)}
+.button-link.primary{background:var(--accent);color:var(--color-background);border-color:var(--accent)}
+.button-link.primary:hover{background:var(--color-brass-hover);color:var(--color-background)}
+.menu-actions{border:0;padding:0;display:grid;grid-template-columns:1fr;max-width:430px}
+.menu-actions .menu-option{display:grid;grid-template-columns:1fr;gap:.25rem}
+.menu-actions .menu-option span{font:400 1.4rem/1.3 var(--font-display)}
+.menu-actions .menu-option small{font-size:.56rem;letter-spacing:.1em}
+.menu-actions .menu-option:first-child small{color:var(--color-background);opacity:.8}
+.detective-choice{display:flex;flex-direction:column}
+.detective-choice>.career-portrait{padding:0;flex-shrink:0}
+.detective-choice>.career-card-body{flex:1;padding:1.5rem}
+.detective-choice .career-portrait img{width:100%;aspect-ratio:280/280;object-fit:cover}
+.portrait-large{overflow:hidden;border:1px solid var(--edge-brass);background:var(--color-inset)}
+.portrait-large img{display:block;width:100%;height:auto;max-height:530px;object-fit:contain;filter:saturate(.6)}
+.detective-confirmation h2{font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.25}
+.case-meta{display:grid;grid-template-columns:1fr;gap:.7rem;text-transform:none;margin-bottom:1.5rem}
+.case-meta>div{display:grid;grid-template-columns:100px minmax(0,1fr);gap:.5rem}
+.case-meta dt{color:var(--accent)}.case-meta dd{margin:0}
+.game-context{display:block}.game-context h2{font-family:var(--font-display)}
+.game-nav a,.game-rail nav>a{flex-direction:column;align-items:flex-start;gap:.3rem}
+.game-content>.screen-heading{margin-bottom:1.5rem}
+.game-content .screen-heading h1{font-size:clamp(2.3rem,4vw,3.6rem)}
+.archive-link{display:grid;gap:.4rem;padding:1.5rem .75rem;text-decoration:none;color:var(--color-text)}
+.archive-link:hover{background:var(--wash-brass)}
+.archive-link strong{font:400 1.5rem var(--font-display)}
+.archive-link .muted{font-size:.85rem}
+.career-overview>article{display:flex;gap:1.5rem;align-items:center}.career-overview img{object-fit:cover;flex-shrink:0;filter:saturate(.6)}
+.settings-panel{padding:1.5rem;gap:1.25rem}
+.settings-panel>label{display:grid;gap:.6rem;padding:0 0 1.25rem;border-bottom:1px solid var(--line)}
+.settings-panel select{width:100%;min-width:0}
+.settings-panel>button{justify-self:start}
+.game-content .interview{margin-top:0}.game-content .interview>h2,.game-content .interview>.label,.game-content .interview>p{display:none}
+.game-content .equipment-header h2{font-size:1.8rem}
+@media(prefers-reduced-motion:no-preference){[data-motion=system] .game-screen{animation:screen-enter var(--motion-enter) ease-out both}}
+[data-motion=reduce] *,[data-motion=reduce] *::before,[data-motion=reduce] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(max-width:760px){.game-rail nav,.game-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.game-nav a small{display:none}.game-context{display:none}.game-rail>.menu-back{margin-bottom:.75rem}.career-overview>article{gap:1rem}}
+@media(max-width:480px){.detective-choice{display:flex;flex-direction:column}.detective-choice .career-portrait img{aspect-ratio:280/220}.portrait-large{max-width:240px;margin:auto}.portrait-large img{max-height:300px}.detective-confirmation h2{font-size:1.7rem}.career-overview img{width:70px;height:85px}.case-meta>div{grid-template-columns:80px minmax(0,1fr)}.menu-actions{max-width:none}.main-menu h1{font-size:clamp(3.1rem,14vw,4.6rem)}}

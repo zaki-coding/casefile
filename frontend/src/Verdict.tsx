@@ -10,6 +10,7 @@ interface VerdictProps {
   onRestart: () => void
   title?: string
   careerReward?: ReactNode
+  actions?: ReactNode
 }
 
 const scoring = [
@@ -30,7 +31,7 @@ function Finding({ label, correct }: { label: string; correct: boolean }) {
   </span>
 }
 
-export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof', careerReward }: VerdictProps) {
+export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof', careerReward, actions }: VerdictProps) {
   const { details } = result
   const heading = useRef<HTMLHeadingElement>(null)
 
@@ -98,7 +99,7 @@ export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof',
 
     {careerReward}
     <div className="closing-actions">
-      <button type="button" className="primary" disabled={busy} onClick={onRestart}>{busy ? 'Opening investigation…' : 'Start a new investigation →'}</button>
+      {actions ?? <button type="button" className="primary" disabled={busy} onClick={onRestart}>{busy ? 'Opening investigation…' : 'Start a new investigation →'}</button>}
     </div>
   </section>
 }

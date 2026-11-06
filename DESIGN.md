@@ -37,6 +37,23 @@ surfaces exceed 4.5:1 contrast. The primary button pair is 8.31:1. Disabled cont
 are visually subdued. Reduced-motion preferences disable transitions and reveals.
 Layouts stack at narrow widths; phone navigation becomes a two-column index.
 
+## Screen flow and navigation
+
+`navigation.ts` defines typed hash routes and the single-flight begin guard.
+`App.tsx` coordinates loading and mutations; `main.tsx` only mounts the application
+and its styles. Setup, investigation and settings screen components live under
+`frontend/src/screens`. The original API, save IDs and database schema are unchanged.
+
+The setup flow presents exactly one decision per screen. The investigation uses a
+consistent room index beside a dedicated content view. Final verdicts take over the
+screen, with archive/replay actions and permanent unlock reports. The two case
+artworks are original SVG location illustrations in `CaseArtwork.tsx`.
+
+`screens.css` owns cinematic screen entrances and the responsive room index. Route
+changes move focus to the new heading and return to the top. Motion uses the shared
+duration tokens; both OS preferences and the explicit reduced-motion setting disable
+animation. Hash routing avoids deep-link 404s on the local static frontend server.
+
 ## Future artwork
 
 Existing portraits are retained and graded with reduced saturation for continuity.

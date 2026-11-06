@@ -7,7 +7,25 @@
 
 ## Play the case
 
-1. Choose a detective and case at the bureau, then confirm your assignment.
+The game now opens on a dedicated main menu. **New Investigation** leads through
+detective selection, explicit character confirmation, case selection and a full
+briefing. A save is created only when **Begin Investigation** is pressed.
+**Continue Investigation** lists open and closed dossiers, and **Detective Career**
+shows permanent progression independently of the assignment flow.
+
+Evidence, interviews, equipment, accusations and verdicts each have their own URL
+and screen. Browser Back/Forward and refresh preserve the investigation ID. The
+hash-based router works with both Vite and the existing local production server
+without server-side route rewrites. Accusation drafts and selected interview
+subjects are kept in session storage; evidence, transcripts, abilities, findings,
+scores and career rewards remain authoritative in SQLite.
+
+**Settings** saves reading size and transition preferences in this browser. System
+reduced-motion preferences are always respected. Replay returns through character
+confirmation and the same case's briefing, and still requires an explicit Begin.
+Replays retain the existing zero additional career reward rule.
+
+1. Open New Investigation, choose and confirm a detective, then read a case briefing and begin.
 2. Examine files and pin them to the evidence board.
 3. Enter the interview room, choose a suspect, and build a transcript. Follow-up questions unlock after earlier exchanges or after you examine the relevant evidence.
 4. Accuse a suspect, choose the method, and cite two examined files.
