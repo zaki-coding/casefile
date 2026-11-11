@@ -1,3 +1,4 @@
+import { EvidenceConnections, ReasonedAccusation } from './Reasoning'
 import { useState } from 'react'
 import { canAccuse, type CaseBrief, type Investigation, type PlayerProfile } from '../api'
 import { AbilityPanel } from '../AbilityPanel'
@@ -11,6 +12,7 @@ import { ScreenHeading } from './SetupScreens'
 export type InvestigationProps = { state: Investigation; brief: CaseBrief; busy: boolean; update: (path: string, data?: unknown) => void }
 export function EvidenceScreen({ state, brief, busy, update }: InvestigationProps) {
   return <><ScreenHeading label="01 / EVIDENCE ROOM" title="Evidence board"><p className="muted">Pin the facts. Find the gaps between them.</p></ScreenHeading><AbilityPanel state={state} brief={brief} person={brief.suspects[0].id} busy={busy} inInterview={false} onUse={(type,target) => update('/ability',{type,target})} />
+    {state.reasoningVersion && <EvidenceConnections state={state} brief={brief} busy={busy} update={update} />}
     <div className="cards evidence-files">{brief.evidence.map((clue,index) => <article key={clue.id}><div className="label accent">FILE {String(index+1).padStart(2,'0')}{state.board[clue.id] ? ' / PINNED' : ''}</div><h3>{clue.title}</h3><p className="muted">{clue.source}</p>{state.board[clue.id] ? <p>{state.board[clue.id]}</p> : <button disabled={busy || !!state.result} onClick={() => update('/evidence/'+clue.id)}>Examine file →</button>}</article>)}</div></>
 }
 export function InterviewsScreen({ state, brief, busy, update, onUpdate, onBusy }: InvestigationProps & { onUpdate: (s: Investigation) => void; onBusy: (b: boolean) => void }) {
@@ -18,7 +20,7 @@ export function InterviewsScreen({ state, brief, busy, update, onUpdate, onBusy 
     const saved = sessionStorage.getItem('casefile-suspect-'+state.id)
     return brief.suspects.some(s => s.id === saved) ? saved! : brief.suspects[0].id
   })
-  return <><ScreenHeading label="02 / WITNESS ACCOUNTS" title="Suspect interviews"><p className="muted">One room. Competing versions of the truth.</p></ScreenHeading><AbilityPanel state={state} brief={brief} person={person} busy={busy} inInterview onUse={(type,target) => update('/ability',{type,target})} /><Interview key={state.id+person} id={state.id} person={person} suspects={brief.suspects} closed={!!state.result} busy={busy} pressureUsed={state.ability?.type==='pressure'} onSelect={id => { sessionStorage.setItem('casefile-suspect-'+state.id,id); setPerson(id) }} onUpdate={onUpdate} onBusy={onBusy} /></>
+  return <><ScreenHeading label="02 / WITNESS ACCOUNTS" title="Suspect interviews"><p className="muted">One room. Competing versions of the truth.</p></ScreenHeading><AbilityPanel state={state} brief={brief} person={person} busy={busy} inInterview onUse={(type,target) => update('/ability',{type,target})} /><Interview key={state.id+person} id={state.id} person={person} suspects={brief.suspects} examinedFiles={brief.evidence.filter(file => Object.hasOwn(state.board, file.id))} closed={!!state.result} busy={busy} pressureUsed={state.ability?.type==='pressure'} onSelect={id => { sessionStorage.setItem('casefile-suspect-'+state.id,id); setPerson(id) }} onUpdate={onUpdate} onBusy={onBusy} /></>
 }
 export function EquipmentScreen({state,brief,busy,onUpdate}: Omit<InvestigationProps,'update'> & {onUpdate:(s:Investigation)=>void}) {
   return <><ScreenHeading label="03 / FIELD INSTRUMENTS" title="Detective equipment"><p className="muted">Bring the evidence into focus.</p></ScreenHeading><Equipment state={state} brief={brief} busy={busy} onUpdate={onUpdate} /></>
@@ -28,7 +30,11 @@ export function restoreTheory(raw:string|null):Theory {
   try { const value=JSON.parse(raw??'null'); if(value && typeof value.suspect==='string' && typeof value.method==='string' && Array.isArray(value.evidence) && value.evidence.every((s:unknown)=>typeof s==='string')) return value } catch { /* A damaged draft never affects the save. */ }
   return {suspect:'',method:'',evidence:[]}
 }
-export function AccusationScreen({state,brief,busy,update}:InvestigationProps) {
+export function AccusationScreen(props: InvestigationProps) {
+  return props.state.reasoningVersion ? <ReasonedAccusation {...props} /> : <OriginalAccusation {...props} />
+}
+
+function OriginalAccusation({state,brief,busy,update}:InvestigationProps) {
   const key='casefile-theory-'+state.id
   const [theory,setTheory]=useState(()=>restoreTheory(sessionStorage.getItem(key)))
   function change(next:Theory) { setTheory(next);sessionStorage.setItem(key,JSON.stringify(next)) }

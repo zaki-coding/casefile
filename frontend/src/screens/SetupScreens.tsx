@@ -56,7 +56,9 @@ export function CaseSelection({ detective, cases, profile }: { detective: Detect
 }
 export function CaseBriefing({ detective, dossier, solved, busy, onBegin }: { detective: Detective; dossier: CaseSummary; solved: boolean; busy: boolean; onBegin: () => void }) {
   return <><Back to={paths.cases(detective.id)}>Select a Different Case</Back><section className="briefing-layout"><CaseArtwork caseId={dossier.id} /><div className="briefing-copy"><ScreenHeading label={'CASE ' + dossier.number + ' / CLASSIFIED BRIEFING'} title={dossier.title}><p className="label accent">{dossier.location}</p></ScreenHeading><p>{dossier.brief}</p><p className="muted">Assigned detective: <strong>{detective.name}</strong> · {detective.ability}</p>
-      <div className="briefing-objectives"><h2>Investigation objectives</h2><ol><li>Examine and compare the evidence.</li><li>Interview suspects and test their accounts.</li><li>Identify the culprit and method; cite two supporting files.</li></ol></div>
+      <div className="briefing-objectives"><h2>Investigation objectives</h2><ol><li>Examine and compare the evidence.</li><li>Interview suspects and test their accounts.</li><li>{dossier.id === '001'
+        ? 'Identify the culprit, motive and method. Cite a distinct file for each claim.'
+        : 'Identify the culprit and method. Cite two supporting files.'}</li></ol></div>
       <p className="muted">{solved ? 'Replay: your career points and permanent unlocks are preserved. No additional career reward.' : 'Your first successful solution earns its score in career points, up to 100.'}</p><button className="primary" disabled={busy} onClick={onBegin}>{busy ? 'Opening investigation…' : 'Begin Investigation'}</button>
     </div></section></>
 }

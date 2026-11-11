@@ -9,6 +9,8 @@ export interface CaseSummary {
 }
 
 export interface CaseBrief extends CaseSummary {
+  motives?: Record<string, string>
+  relationships?: Record<string, string>
   suspects: { id: string; name: string; role: string }[]
   evidence: { id: string; title: string; source: string }[]
   topics: Record<string, string>
@@ -44,6 +46,8 @@ export interface SavedInvestigation {
 }
 
 export interface Investigation {
+  reasoningVersion?: number
+  deductions?: { id: string; title: string; explanation: string; evidence: string[] }[]
   equipmentFindings?: EquipmentFinding[]
   id: string
   caseId: string
@@ -57,6 +61,7 @@ export interface Investigation {
     solved: boolean
     explanation: string
     breakdown: Record<string, number>
+    maximums?: Record<string, number>
     career?: CareerRewardData
     details?: {
       culprit: string
@@ -65,7 +70,11 @@ export interface Investigation {
       methodChoice: string
       suspectCorrect: boolean
       methodCorrect: boolean
-      evidence: { id: string; title: string; correct: boolean }[]
+      motive?: string
+      motiveChoice?: string
+      motiveCorrect?: boolean
+      keyClues?: { title: string; explanation: string }[]
+      evidence: { id: string; title: string; correct: boolean; claim?: string; explanation?: string }[]
       timeline: { time: string; title: string; description: string; evidence: string }[]
     }
   } | null
@@ -99,12 +108,14 @@ interface InterviewEntry {
   topic: string
   question?: string
   answer: string
+  evidence?: string
+  contradiction?: string
 }
 
 export interface InterviewScene {
   suspect: string
   opening: string
-  options: { id: string; label: string; status: 'available' | 'asked' | 'locked'; hint?: string }[]
+  options: { id: string; label: string; status: 'available' | 'asked' | 'locked'; hint?: string; presentation?: boolean }[]
   transcript: (InterviewEntry & { question: string })[]
 }
 

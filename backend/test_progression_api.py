@@ -35,17 +35,18 @@ def post(client, path, data=None, status=200):
 def solve(client, case_id, detective="adrian"):
     culprit, method, evidence, *_ = CASES[case_id]
     path = start(client, case_id, detective)
-    for clue in evidence:
+    accusation = {"suspect": culprit, "method": method, "evidence": evidence}
+    if case_id == "001":
+        accusation.update(motive="protect", evidence=["badge", "treatment", "relay"])
+    for clue in accusation["evidence"]:
         post(client, path + "/evidence/" + clue)
-    return post(client, path + "/accusation", {
-        "suspect": culprit, "method": method, "evidence": evidence,
-    })["result"]
+    return post(client, path + "/accusation", accusation)["result"]
 
 
 def test_new_cases_hide_solutions_and_route_evidence(client):
     summaries = client.get("/api/cases").json()
     assert [(case["id"], case["suspectCount"], case["evidenceCount"]) for case in summaries] == [
-        ("001", 3, 5), ("002", 4, 10),
+        ("001", 3, 7), ("002", 4, 10),
     ]
     second = client.get("/api/case/002").json()
     assert "culprit" not in second and "timeline" not in second
@@ -72,14 +73,14 @@ def test_first_success_per_case_unlocks_detectives_and_replay_pays_zero(client):
     })["result"]["career"]["earned"] == 0
 
     first = solve(client, "001")
-    assert first["career"]["earned"] == first["score"] == 100
+    assert first["career"]["earned"] == first["score"] == 76
     assert first["career"]["newUnlocks"] == ["selena"]
     assert first["career"]["nextUnlock"]["threshold"] == 150
     assert solve(client, "001", "selena")["career"]["earned"] == 0
     assert client.put("/api/profile/detective", json={"detectiveId": "elias"}).status_code == 409
 
     second = solve(client, "002", "selena")
-    assert second["career"] == {"earned": 100, "points": 200, "newUnlocks": ["elias"],
+    assert second["career"] == {"earned": 100, "points": 176, "newUnlocks": ["elias"],
                                 "newEquipmentUnlocks": ["digital", "timeline"], "nextUnlock": None}
     assert second["details"]["culprit"] == "Sabine Vey"
     assert len(second["details"]["timeline"]) == 5
@@ -87,7 +88,7 @@ def test_first_success_per_case_unlocks_detectives_and_replay_pays_zero(client):
     with TestClient(main.app) as reopened:
         profile = reopened.get("/api/profile").json()
         assert profile["selectedDetective"] == "elias"
-        assert profile["solvedCases"] == [{"caseId": "001", "score": 100}, {"caseId": "002", "score": 100}]
+        assert profile["solvedCases"] == [{"caseId": "001", "score": 76}, {"caseId": "002", "score": 100}]
 
 
 @pytest.mark.parametrize("case_id", CASES)

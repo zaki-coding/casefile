@@ -123,25 +123,27 @@ def test_catalog_does_not_expose_private_results_or_answers(client):
 
 
 @pytest.mark.parametrize("case_id,culprit,method,clues", [
-    ("001", "mara", "switch", ["badge", "relay"]),
+    ("001", "mara", "switch", ["badge", "treatment", "relay"]),
     ("002", "sabine", "bypass", ["route", "latch"]),
 ])
 def test_starter_can_solve_without_optional_equipment_and_unlocks_are_once(
         client, case_id, culprit, method, clues):
+    expected = 76 if case_id == "001" else 100
     for attempt in range(2):
         path = start(client, case_id)
         for clue in clues:
             client.post(path + "/evidence/" + clue)
         solved = client.post(path + "/accusation", json={
             "suspect": culprit, "method": method, "evidence": clues,
+            **({"motive": "protect"} if case_id == "001" else {}),
         }).json()
         assert solved["result"]["solved"]
         assert solved["equipmentFindings"] == []
         reward = solved["result"]["career"]
-        assert reward["earned"] == (100 if attempt == 0 else 0)
+        assert reward["earned"] == (expected if attempt == 0 else 0)
         assert reward["newEquipmentUnlocks"] == (["forensic"] if attempt == 0 else [])
         assert use(client, path, equipment.EXAMINATIONS[case_id][0]).status_code == 409
-    assert client.get("/api/profile").json()["points"] == 100
+    assert client.get("/api/profile").json()["points"] == expected
 
 
 def test_legacy_state_is_extended_without_losing_existing_progress(client):

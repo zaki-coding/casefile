@@ -27,10 +27,10 @@ Replays retain the existing zero additional career reward rule.
 
 1. Open New Investigation, choose and confirm a detective, then read a case briefing and begin.
 2. Examine files and pin them to the evidence board.
-3. Enter the interview room, choose a suspect, and build a transcript. Follow-up questions unlock after earlier exchanges or after you examine the relevant evidence.
-4. Accuse a suspect, choose the method, and cite two examined files.
+3. In a new Midnight Proof investigation, compare two examined files and test a relationship. Use the deductions to confront suspects by presenting a relevant file.
+4. Choose the culprit, motive and method, cite a distinct examined file for each claim, and review the accusation before submitting.
 
-The suspect is worth 50 points, the method 30, and the two decisive files 10 each. The closing report reveals the culprit, reconstructs the theft, and compares your choices with the evidence. Reloading the same browser restores your progress and transcripts. Completed saves from the first version still show their original score and explanation.
+The new Midnight Proof verdict scores the three claims, how well each file supports its claim, established deductions, and recorded contradictions. It reconstructs the theft and explains the key clues. The Ninth Sounding and pre-existing investigations retain the original culprit, method, and two-file accusation rules. Reloading restores examined files, deductions and transcripts.
 
 ## Detective career
 

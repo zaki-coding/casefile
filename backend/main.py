@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from . import career, equipment
+from . import career, equipment, reasoning
 from .abilities import ability_options, use_ability
 from .cases import CASES
 from .solution import reveal
@@ -46,6 +46,8 @@ def restore(raw_state):
     state.setdefault("detectiveId", career.DEFAULT_DETECTIVE)
     state.setdefault("ability", None)
     state.setdefault("equipmentFindings", [])
+    if state.get("reasoningVersion"):
+        state.setdefault("deductions", [])
     return state
 
 
@@ -79,12 +81,19 @@ def edit(investigation_id):
 class Question(BaseModel):
     suspect: str
     topic: str
+    evidence: str | None = None
+
+
+class Connection(BaseModel):
+    evidence: list[str]
+    relationship: str
 
 
 class Accusation(BaseModel):
     suspect: str
     method: str
     evidence: list[str]
+    motive: str | None = None
 
 
 class NewInvestigation(BaseModel):
@@ -114,12 +123,15 @@ def case_catalog():
 
 @app.get("/api/case")
 def default_brief():
-    return get_case(DEFAULT_CASE).brief()
+    return case_brief(DEFAULT_CASE)
 
 
 @app.get("/api/case/{case_id}")
 def case_brief(case_id: str):
-    return get_case(case_id).brief()
+    brief = get_case(case_id).brief()
+    if case_id == DEFAULT_CASE:
+        brief.update(motives=reasoning.MOTIVES, relationships=reasoning.RELATIONSHIPS)
+    return brief
 
 
 @app.get("/api/profile")
@@ -162,6 +174,8 @@ def start(request: NewInvestigation | None = None):
         state = {"id": str(uuid4()), "caseId": request.caseId, "detectiveId": detective,
                  "board": {}, "interviews": [], "ability": None,
                  "equipmentFindings": [], "result": None}
+        if request.caseId == DEFAULT_CASE:
+            state.update(reasoningVersion=1, deductions=[])
         connection.execute("INSERT INTO investigations VALUES (?, ?)", (state["id"], json.dumps(state)))
     return response(state)
 
@@ -179,6 +193,15 @@ def examine(investigation_id: UUID, clue_id: str):
         if clue is None:
             raise HTTPException(404, "Evidence not found")
         state["board"][clue_id] = clue["detail"]
+    return response(state)
+
+
+@app.post("/api/investigations/{investigation_id}/connections")
+def connect_evidence(investigation_id: UUID, connection: Connection):
+    with edit(investigation_id) as (state, _, _connection):
+        if not state.get("reasoningVersion"):
+            raise HTTPException(422, "This investigation uses the original evidence board.")
+        reasoning.connect(state, connection.evidence, connection.relationship)
     return response(state)
 
 
@@ -200,13 +223,23 @@ def interview(investigation_id: UUID, question: Question):
         view, lines = case.scene(state, question.suspect)
         if question.topic not in lines:
             raise HTTPException(422, "Unknown suspect or interview topic")
-        option = next(item for item in view["options"] if item["id"] == question.topic)
+        option = next((item for item in view["options"] if item["id"] == question.topic), None)
+        if option is None:
+            raise HTTPException(422, "Unknown suspect or interview topic")
         if option["status"] == "locked":
             raise HTTPException(409, option["hint"])
+        line = lines[question.topic]
+        if line.contradiction:
+            if question.evidence not in state["board"]:
+                raise HTTPException(422, "Present a file you have examined.")
+            if question.evidence not in line.evidence:
+                raise HTTPException(409, "That file does not challenge this account. Check its source and what it records.")
         if option["status"] == "available":
-            line = lines[question.topic]
+            presentation = ({"evidence": question.evidence, "contradiction": line.contradiction}
+                            if line.contradiction else {})
             state["interviews"].append({
-                **question.model_dump(), "question": line.question, "answer": line.answer,
+                "suspect": question.suspect, "topic": question.topic,
+                "question": line.question, "answer": line.answer, **presentation,
             })
     return response(state)
 
@@ -238,6 +271,11 @@ def accuse(investigation_id: UUID, accusation: Accusation):
     with edit(investigation_id) as (state, case, connection):
         if accusation.suspect not in case.lines or accusation.method not in case.data["methods"]:
             raise HTTPException(422, "Unknown suspect or method")
+        if state.get("reasoningVersion"):
+            result = reasoning.verdict(state, case, accusation)
+            result["career"] = career.award(connection, case.id, result["score"] if result["solved"] else None)
+            state["result"] = result
+            return response(state)
         selected = set(accusation.evidence)
         if len(accusation.evidence) != 2 or len(selected) != 2 or selected - state["board"].keys():
             raise HTTPException(422, "Select two distinct pieces of examined evidence")
