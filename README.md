@@ -20,6 +20,12 @@ without server-side route rewrites. Accusation drafts and selected interview
 subjects are kept in session storage; evidence, transcripts, abilities, findings,
 scores and career rewards remain authoritative in SQLite.
 
+The detective assigned to the dossier stays at the foot of each investigation
+screen. Their field notes respond to the files you examine, the answers you record
+and the outcome you receive. Open **Shortcuts** to return to the board, enter an
+interview or find your detective’s ability. The dock gives the case its own
+scrolling area so the shortcuts can stay open while you read.
+
 **Settings** saves reading size and transition preferences in this browser. System
 reduced-motion preferences are always respected. Replay returns through character
 confirmation and the same case's briefing, and still requires an explicit Begin.
@@ -125,6 +131,12 @@ cd frontend
 npm.cmd test
 npm.cmd run build
 ~~~
+
+The browser suite plays both cases against a local server on port 8879. It uses
+a separate SQLite file under `frontend/test-results/`. From `frontend`, after
+building, run `npx.cmd playwright install chromium` and `npm.cmd run test:browser`.
+To use an installed copy of Chrome, set `$env:PLAYWRIGHT_CHANNEL = 'chrome'`
+before running the suite.
 
 ## Roadmap
 

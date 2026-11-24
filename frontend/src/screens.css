@@ -124,7 +124,9 @@
 .game-nav a,.game-rail nav>a{flex-direction:column;align-items:flex-start;gap:.3rem}
 .game-content>.screen-heading{margin-bottom:1.5rem}
 .game-content .screen-heading h1{font-size:clamp(2.3rem,4vw,3.6rem)}
-.archive-link{display:grid;gap:.4rem;padding:1.5rem .75rem;text-decoration:none;color:var(--color-text)}
+.archive-link{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:1rem;padding:1rem .75rem;text-decoration:none;color:var(--color-text)}
+.archive-link>div{display:grid;gap:.35rem}
+.archive-link .label{font-size:.65rem;color:var(--accent)}
 .archive-link:hover{background:var(--wash-brass)}
 .archive-link strong{font:400 1.5rem var(--font-display)}
 .archive-link .muted{font-size:.85rem}
@@ -135,6 +137,32 @@
 .settings-panel>button{justify-self:start}
 .game-content .interview{margin-top:0}.game-content .interview>h2,.game-content .interview>.label,.game-content .interview>p{display:none}
 .game-content .equipment-header h2{font-size:1.8rem}
+.field-ability { scroll-margin-block: var(--space-4); }
+.game-rail .game-nav>a { justify-content: center; min-height: 46px; font-size: .88rem; }
+.game-rail .menu-back { min-height: 44px; margin-bottom: .4rem; }
+.game-rail .rail-counts { font: .73rem/1.75 var(--font-label); }
+.game-rail .game-context { border-block: 1px solid var(--line); }
+.interview-roster button { display: grid; grid-template-columns: auto minmax(0,1fr); gap: .65rem; align-items: center; padding: .65rem; }
+.interview-roster .suspect-thumbnail { display: block; object-fit: cover; border-radius: var(--radius-sm); filter: saturate(.6); }
+.interview-roster strong, .interview-roster small { display: block; }
+.interview-roster small { margin-top: .2rem; color: var(--muted); font: .76rem/1.4 var(--font-body); }
+.interview-roster button[aria-pressed=true] { box-shadow: inset 2px 0 var(--accent); }
+.closing-header h1 { color: var(--closing-seal); font-size: clamp(2.5rem,6vw,4.6rem); line-height: 1.05; }
+.closing-header .closing-location { margin: .5rem 0 0; color: var(--muted); font: .8rem/1.5 var(--font-label); }
+.results-actions { padding-top: 0; margin-top: 0; border: 0; }
+@media (max-width: 760px) {
+  .game-rail { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: .35rem; }
+  .game-rail .menu-back { grid-row: 1; margin: 0; }
+  .game-rail .game-nav { grid-column: 1/-1; }
+  .game-rail .game-nav>a { align-items: center; text-align: center; }
+  .game-rail .rail-counts { display: none; }
+  .game-layout { margin-top: 0; }
+}
+@media (max-width: 400px) {
+  .interview-roster button { grid-template-columns: 1fr; }
+  .interview-roster .suspect-thumbnail { display: none; }
+  .closing-breakdown > div { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
 @media(prefers-reduced-motion:no-preference){[data-motion=system] .game-screen{animation:screen-enter var(--motion-enter) ease-out both}}
 [data-motion=reduce] *,[data-motion=reduce] *::before,[data-motion=reduce] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 @media(max-width:760px){.game-rail nav,.game-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.game-nav a small{display:none}.game-context{display:none}.game-rail>.menu-back{margin-bottom:.75rem}.career-overview>article{gap:1rem}}
