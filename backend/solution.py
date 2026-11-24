@@ -3,6 +3,12 @@
 DECISIVE_EVIDENCE = {"badge", "relay"}
 TIMELINE = [
     {
+        "time": "21:10",
+        "title": "A request to take the print off display",
+        "description": "Mara proposed substituting a studio proof after the survey showed fresh fading. June kept the original on display for the donors.",
+        "evidence": "Condition survey and rejected treatment request",
+    },
+    {
         "time": "23:59",
         "title": "Into the service corridor",
         "description": "Mara entered the corridor using her personal badge, contradicting her washroom alibi.",

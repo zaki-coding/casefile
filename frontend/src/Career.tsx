@@ -1,12 +1,9 @@
 import { useState } from 'react'
 import type { CareerRewardData, CaseSummary, PlayerProfile } from './api'
 import './career.css'
+import { EquipmentCollection, ToolIcon } from './Equipment'
+import { portraits } from './detectives/portraits'
 
-const portraits: Record<string, string> = {
-  adrian: new URL('./detectives/adrian.svg', import.meta.url).href,
-  selena: new URL('./detectives/selena.svg', import.meta.url).href,
-  elias: new URL('./detectives/elias.svg', import.meta.url).href,
-}
 const detectiveNames: Record<string, string> = {
   adrian: 'Adrian Cross',
   selena: 'Selena Voss',
@@ -24,7 +21,7 @@ export function Career({ profile, cases, busy, onStart, onSelect, onBack }: {
   const [caseId, setCaseId] = useState(cases[0]?.id ?? '')
   const activeCase = cases.find(item => item.id === caseId)
   const detective = profile.detectives.find(item => item.id === profile.selectedDetective && item.unlocked)
-  const next = profile.detectives.filter(item => !item.unlocked).sort((a, b) => a.threshold - b.threshold)[0]
+  const next = [...profile.detectives, ...(profile.equipment ?? [])].filter(item => !item.unlocked).sort((a, b) => a.threshold - b.threshold)[0]
 
   return <section className="career" aria-labelledby="career-title">
     <header className="career-banner">
@@ -45,7 +42,7 @@ export function Career({ profile, cases, busy, onStart, onSelect, onBack }: {
       <label htmlFor="bureau-progress">Next unlock · {next.name}</label>
       <span>{profile.points} / {next.threshold} points</span>
       <progress id="bureau-progress" value={profile.points} max={next.threshold} />
-    </div> : <p className="career-kicker career-complete">All detectives unlocked</p>}
+    </div> : <p className="career-kicker career-complete">All career unlocks issued</p>}
 
     <section aria-labelledby="roster-title">
       <p className="career-kicker">01 / Assign personnel</p>
@@ -73,6 +70,7 @@ export function Career({ profile, cases, busy, onStart, onSelect, onBack }: {
       </div>
     </section>
 
+    {!!profile.equipment?.length && <EquipmentCollection tools={profile.equipment} points={profile.points} />}
     <section className="career-case-section" aria-labelledby="case-selection-title">
       <p className="career-kicker">02 / Choose assignment</p>
       <h2 id="case-selection-title">Case archive</h2>
@@ -117,6 +115,15 @@ export function CareerReward({ reward, profile }: { reward: CareerRewardData; pr
         {portraits[id] && <img src={portraits[id]} alt="" width="70" height="75" />}
         <div><span className="career-kicker">Detective unlocked</span><h3>{name ?? id}</h3>
           {detective && <p>{detective.ability} · {detective.role}</p>}
+        </div>
+      </div>
+    })}
+    {(reward.newEquipmentUnlocks ?? []).map(id => {
+      const tool = profile?.equipment?.find(item => item.id === id)
+      return <div className="career-unlock" key={'equipment-' + id}>
+        <div className="equipment-unlock-icon"><ToolIcon id={id} /></div>
+        <div><span className="career-kicker">Equipment unlocked · Permanent issue</span><h3>{tool?.name ?? id}</h3>
+          {tool && <p>{tool.description}</p>}
         </div>
       </div>
     })}

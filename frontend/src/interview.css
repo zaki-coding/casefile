@@ -2,20 +2,20 @@
 .interview h2 { margin-top: .3rem; }
 .interview-roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: .65rem; margin: 1.2rem 0; }
 .interview-roster button { display: grid; gap: .3rem; text-align: left; padding: .8rem 1rem; }
-.interview-roster button[aria-pressed="true"] { background: #31291e; }
+.interview-roster button[aria-pressed="true"] { background: var(--color-raised); }
 .interview-stage { display: grid; grid-template-columns: minmax(210px, 32%) minmax(0, 1fr); gap: 1rem; }
-.interview-subject, .interview-record { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #191a18; }
+.interview-subject, .interview-record { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--color-inset); }
 .interview-subject figure { margin: 0; }
 .interview-caption { padding: 1rem; }
-.interview-caption h3 { font-family: Georgia, serif; font-size: 1.65rem; font-weight: 500; }
+.interview-caption h3 { font-family: var(--font-display); font-size: 1.65rem; font-weight: 500; }
 .interview-caption p { margin: 0; color: var(--muted); }
 .interview-record { display: flex; flex-direction: column; }
 .interview-record-header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem; padding: 1rem; border-bottom: 1px solid var(--line); color: var(--muted); }
 .interview-transcript { height: clamp(250px, 40vw, 470px); overflow-y: auto; padding: 1rem; scroll-padding: 1rem; }
 .interview-exchange { display: grid; gap: .7rem; margin-top: .7rem; }
-.interview-line { background: #24251f; padding: .65rem .85rem; border-left: 2px solid var(--accent); border-radius: 3px; max-width: 94%; }
+.interview-line { background: var(--color-raised); padding: .65rem .85rem; border-left: 2px solid var(--accent); border-radius: 3px; max-width: 94%; }
 .interview-line p { margin: .25rem 0 0; }
-.interview-line.investigator { margin-left: auto; margin-top: .35rem; border-color: #879e9a; background: #232b2a; }
+.interview-line.investigator { margin-left: auto; margin-top: .35rem; border-color: var(--color-teal); background: var(--color-raised); }
 .interview-error { padding: 0 1rem 1rem; }
 .interview-prompts { margin-top: 1.25rem; }
 .interview-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: .6rem; }

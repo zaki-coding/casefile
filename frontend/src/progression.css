@@ -3,7 +3,7 @@
   padding: 1rem 1.2rem;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: linear-gradient(115deg, #29251c, var(--panel));
+  background: linear-gradient(115deg, var(--color-raised), var(--panel));
 }
 .field-ability {
   display: flex;

@@ -3,7 +3,7 @@
 CASE = {
     "title": "The Midnight Proof",
     "location": "Bellweather Printworks",
-    "brief": "At midnight, the lights went out at a museum preview. When they came back, the original Bellweather lithograph had been swapped for a reproduction. Find who made the switch and how.",
+    "brief": "At midnight, the lights went out at a museum preview. When they came back, the original Bellweather lithograph had been swapped for a reproduction. Find who made the switch, how, and why.",
     "suspects": [
         {"id": "mara", "name": "Mara Vale", "role": "Paper conservator",
          "answers": {"alibi": "I was alone in the washroom. My access card never left my pocket.",
@@ -15,7 +15,7 @@ CASE = {
                      "lights": "The manual test switch is inside the service corridor."}},
         {"id": "june", "name": "June Park", "role": "Exhibition producer",
          "answers": {"alibi": "I was taking donor questions on the recorded livestream.",
-                     "print": "I rejected a request to remove the original for treatment.",
+                     "print": "I rejected what I took to be routine treatment. No one told me the original was already fading.",
                      "lights": "The outage wasn't on the event schedule."}},
     ],
     "topics": {"alibi": "Where were you at midnight?", "print": "What do you know about the print?",
@@ -31,6 +31,10 @@ CASE = {
          "detail": "Ellis appears continuously on the gate camera from 23:58 to 00:03."},
         {"id": "stream", "title": "Livestream archive", "source": "Event booth",
          "detail": "June is visible and answering questions continuously throughout the blackout."},
+        {"id": "condition", "title": "Condition survey", "source": "Conservation desk",
+         "detail": "A dated comparison of the original with its installation photographs records fresh fading under the preview lamps. The survey calls for immediate removal from light."},
+        {"id": "treatment", "title": "Rejected treatment request", "source": "Exhibition correspondence",
+         "detail": "At 21:10 Mara signed a request to remove the original immediately and display a marked studio proof in its place. She cited the survey's fresh fading. June initialed the refusal and ordered the preview to continue."},
     ],
     "methods": {"switch": "Triggered the manual relay and used conservation access",
                 "storm": "Waited for an external power failure",
@@ -42,5 +46,7 @@ METHOD = "switch"
 EXPLANATION = (
     "Mara cut the lights from the service corridor, used her badge to open the enclosure, "
     "and swapped the original for her studio proof. The badge report contradicts her washroom "
-    "alibi and her claim that the card stayed with her. The relay log establishes the staged outage."
+    "alibi and her claim that the card stayed with her. The relay log establishes the staged outage. "
+    "Her signed request proposed the same substitution to protect the original from further fading. "
+    "When June refused, Mara used the blackout to carry out the removal without permission."
 )

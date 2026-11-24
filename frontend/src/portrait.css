@@ -1,21 +1,21 @@
 .suspect-portrait {
-  --portrait-accent: #b78b62;
+  --portrait-accent: var(--color-brass);
   position: relative;
   isolation: isolate;
   margin: 0;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--portrait-accent) 50%, #211c19);
+  border: 1px solid color-mix(in srgb, var(--portrait-accent) 50%, var(--color-black));
   border-radius: 10px;
-  background: #201c1b;
-  box-shadow: 0 14px 36px #0005;
+  background: var(--color-surface);
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--color-black) 33.33%, transparent);
 }
 
 .suspect-portrait[data-suspect="ellis"] {
-  --portrait-accent: #7aa49b;
+  --portrait-accent: var(--color-teal);
 }
 
 .suspect-portrait[data-suspect="june"] {
-  --portrait-accent: #b18493;
+  --portrait-accent: var(--color-red);
 }
 
 .suspect-portrait img {
@@ -29,7 +29,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 25px #0005;
+  box-shadow: inset 0 0 25px color-mix(in srgb, var(--color-black) 33.33%, transparent);
   content: '';
   pointer-events: none;
 }

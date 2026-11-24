@@ -80,10 +80,10 @@ def test_closed_investigation_preserves_read_only_interview(interview_session):
     interviews = path + "/interviews"
     question = {"suspect": "ellis", "topic": "lights"}
     assert client.post(interviews, json=question).status_code == 200
-    for clue in ("badge", "relay"):
+    for clue in ("badge", "relay", "treatment"):
         assert client.post(path + "/evidence/" + clue).status_code == 200
     assert client.post(path + "/accusation", json={
-        "suspect": "mara", "method": "switch", "evidence": ["badge", "relay"],
+        "suspect": "mara", "method": "switch", "motive": "protect", "evidence": ["badge", "treatment", "relay"],
     }).status_code == 200
     scene = client.get(interviews + "/ellis").json()
     assert len(scene["transcript"]) == 1

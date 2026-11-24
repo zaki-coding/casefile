@@ -1,0 +1,22 @@
+.reasoning-panel {
+  margin-block: var(--space-5);
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--color-teal);
+  border-radius: var(--radius-panel);
+  background: var(--panel);
+}
+.reasoning-panel form { margin: 1rem 0 0; max-width: none; padding: 0; border: 0; box-shadow: none; }
+.reasoning-fields { display: grid; gap: var(--space-4); }
+div.reasoning-fields { grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+.reasoning-fields select, .confrontation select { min-width: 0; }
+.deduction-list { display: grid; gap: var(--space-3); list-style: none; padding: 0; }
+.deduction-list li, .recorded-contradiction { padding: var(--space-3); background: var(--wash-teal); }
+.deduction-list p { margin-block: .25rem; }
+.deduction-list small, .recorded-contradiction strong { color: var(--color-teal-text); }
+.accusation-review > div { padding-block: var(--space-3); border-bottom: 1px solid var(--line); }
+.accusation-review dt { color: var(--accent); font-family: var(--font-label); }
+.accusation-review dd { margin: .35rem 0 0; }
+.accusation-review blockquote { margin: .4rem 0; color: var(--muted); }
+.confrontation { display: grid; gap: .7rem; padding: var(--space-3); border: 1px solid var(--line); }
+.confrontation label { display: grid; gap: .4rem; }

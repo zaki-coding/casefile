@@ -9,7 +9,9 @@ interface VerdictProps {
   busy: boolean
   onRestart: () => void
   title?: string
+  location?: string
   careerReward?: ReactNode
+  actions?: ReactNode
 }
 
 const scoring = [
@@ -21,6 +23,7 @@ const scoring = [
 function performance(result: Result) {
   if (!result.solved) return 'Review the reconstruction to see where your theory diverged from the record.'
   if (result.score === 100) return 'Every part of your accusation is supported by the decisive evidence.'
+  if (result.maximums) return 'Your accusation is supported. The report also credits deductions and contradictions established during the investigation.'
   return 'You identified the culprit and method. The cited files show where your case could be stronger.'
 }
 
@@ -30,9 +33,13 @@ function Finding({ label, correct }: { label: string; correct: boolean }) {
   </span>
 }
 
-export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof', careerReward }: VerdictProps) {
+export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof', location, careerReward, actions }: VerdictProps) {
   const { details } = result
+  const categories = result.maximums
+    ? Object.entries(result.maximums).map(([label, maximum]) => ({ label, maximum }))
+    : scoring
   const heading = useRef<HTMLHeadingElement>(null)
+  const Heading = location ? 'h1' : 'h2'
 
   useEffect(() => {
     heading.current?.focus()
@@ -42,7 +49,8 @@ export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof',
     <header className="closing-header">
       <div>
         <p className="closing-kicker">Final report / {title}</p>
-        <h2 id="closing-title" ref={heading} tabIndex={-1}>{result.solved ? 'Case Closed' : 'Case Unsolved'}</h2>
+        <Heading id="closing-title" ref={heading} tabIndex={-1}>{result.solved ? (location ? 'Case Solved' : 'Case Closed') : 'Case Unsolved'}</Heading>
+        {location && <p className="closing-location">{location}</p>}
         <p>{performance(result)}</p>
       </div>
       <div className="closing-score"><strong>{result.score}</strong><span>/ 100 points</span></div>
@@ -52,12 +60,13 @@ export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof',
       <p className="closing-kicker">{details ? 'Confirmed culprit' : 'Archived solution'}</p>
       <h3 id="closing-reveal-title">{details?.culprit ?? 'The case reconstruction'}</h3>
       {details && <p className="closing-method">{details.method}</p>}
+      {details?.motive && <p><strong>Motive</strong> · {details.motive}</p>}
       <p>{result.explanation}</p>
     </section>
 
     {details && <section className="closing-section" aria-labelledby="closing-timeline-title">
       <p className="closing-kicker">Sequence of events</p>
-      <h3 id="closing-timeline-title">Reconstructing midnight</h3>
+      <h3 id="closing-timeline-title">Case reconstruction</h3>
       <ol className="closing-timeline">
         {details.timeline.map((event, index) => <li key={event.title + index}>
           <span className="closing-time">{event.time}</span>
@@ -70,12 +79,19 @@ export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof',
       </ol>
     </section>}
 
+    {details?.keyClues && <section className="closing-section">
+      <h3>What the clues establish</h3>
+      <ul className="closing-choices">{details.keyClues.map(clue => <li key={clue.title}>
+        <strong>{clue.title}</strong><span className="muted">{clue.explanation}</span>
+      </li>)}</ul>
+    </section>}
+
     <section className="closing-section" aria-labelledby="closing-assessment-title">
       <p className="closing-kicker">Assessment</p>
       <h3 id="closing-assessment-title">How your accusation held up</h3>
       <div className="closing-assessment">
         <dl className="closing-breakdown">
-          {scoring.map(({ label, maximum }) => {
+          {categories.map(({ label, maximum }) => {
             const points = result.breakdown[label] ?? 0
             return <div key={label}>
               <dt>{label}</dt>
@@ -87,10 +103,12 @@ export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof',
         </dl>
         {details ? <ul className="closing-choices">
           <li><strong>{details.suspectChoice}</strong><Finding label={details.suspectCorrect ? 'Correct suspect' : 'Incorrect suspect'} correct={details.suspectCorrect} /></li>
+          {details.motiveChoice && <li><strong>{details.motiveChoice}</strong><Finding label={details.motiveCorrect ? 'Correct motive' : 'Incorrect motive'} correct={!!details.motiveCorrect} /></li>}
           <li><strong>{details.methodChoice}</strong><Finding label={details.methodCorrect ? 'Correct method' : 'Incorrect method'} correct={details.methodCorrect} /></li>
           {details.evidence.map(file => <li key={file.id}>
-            <strong>{file.title}</strong>
+            <strong>{file.claim ? file.claim + ' · ' : ''}{file.title}</strong>
             <Finding label={file.correct ? 'Decisive evidence' : 'No evidence points'} correct={file.correct} />
+            {file.explanation && <span className="muted">{file.explanation}</span>}
           </li>)}
         </ul> : <p className="closing-archive-note">This saved verdict includes the original score and solution. Choice-by-choice feedback is available in new investigations.</p>}
       </div>
@@ -98,7 +116,7 @@ export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof',
 
     {careerReward}
     <div className="closing-actions">
-      <button type="button" className="primary" disabled={busy} onClick={onRestart}>{busy ? 'Opening investigation…' : 'Start a new investigation →'}</button>
+      {actions ?? <button type="button" className="primary" disabled={busy} onClick={onRestart}>{busy ? 'Opening investigation…' : 'Start a new investigation →'}</button>}
     </div>
   </section>
 }

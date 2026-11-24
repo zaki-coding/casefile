@@ -1,0 +1,113 @@
+/* The dossier scrolls in its own row. Opening the dock makes room for its controls. */
+.investigation-viewport {
+  height: 100vh;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.investigation-viewport .page-scroll {
+  min-height: 0;
+  overflow: auto;
+  scroll-padding-block: var(--space-4);
+  scrollbar-gutter: stable;
+}
+.page-scroll .shell {
+  padding-top: env(safe-area-inset-top);
+  padding-left: max(clamp(20px, 4vw, 56px), env(safe-area-inset-left));
+  padding-right: max(clamp(20px, 4vw, 56px), env(safe-area-inset-right));
+}
+.companion {
+  padding: var(--space-2) max(var(--space-4), env(safe-area-inset-right)) max(var(--space-2), env(safe-area-inset-bottom)) max(var(--space-4), env(safe-area-inset-left));
+  border-top: 1px solid var(--line);
+  background: var(--color-inset);
+  max-height: 50dvh;
+  overflow-y: auto;
+}
+.companion-card {
+  max-width: 46rem;
+  margin-inline: auto;
+  border: 1px solid var(--edge-brass);
+  border-radius: var(--radius-panel);
+  background: linear-gradient(105deg, var(--wash-brass), var(--color-surface) 48%);
+}
+.companion-head {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: .4rem .65rem .4rem .4rem;
+}
+.companion-portrait, .archive-link img {
+  display: block;
+  object-fit: cover;
+  object-position: center 30%;
+  border: 1px solid var(--edge-brass);
+  border-radius: var(--radius-sm);
+  filter: saturate(.72);
+}
+.companion-copy strong { display: block; font: 500 1.13rem/1.2 var(--font-display); color: var(--accent); }
+.companion-copy p { margin: .18rem 0 0; font: .93rem/1.4 var(--font-body); color: var(--color-text); }
+.companion-toggle {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: .72rem/1.4 var(--font-label);
+}
+.companion-toggle::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-panel); }
+.companion-toggle:focus-visible { outline: 0; }
+.companion-toggle:focus-visible::after { outline: 2px solid var(--color-brass-hover); outline-offset: 2px; }
+.companion-toggle i { width: .5rem; height: .5rem; border: solid currentColor; border-width: 1.5px 1.5px 0 0; transform: rotate(-45deg); }
+.companion-toggle[aria-expanded=true] i { transform: rotate(135deg); }
+.companion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 var(--space-3);
+  padding: var(--space-2) 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+.companion-actions[hidden] { display: none; }
+.companion-actions a {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: .4rem .75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--color-inset);
+  color: var(--color-text);
+  font: .84rem/1.4 var(--font-body);
+  text-decoration: none;
+}
+.companion-actions a[aria-current=page] { color: var(--color-teal-text); border-color: var(--color-teal); }
+.companion-actions a:hover { border-color: var(--accent); color: var(--color-brass-hover); }
+.companion-actions a span { color: var(--muted); }
+@media (max-width: 600px) {
+  .companion {
+    padding: .3rem max(.5rem, env(safe-area-inset-right)) max(.3rem, env(safe-area-inset-bottom)) max(.5rem, env(safe-area-inset-left));
+  }
+  .companion-head { gap: .6rem; padding-right: .25rem; }
+  .companion-portrait { width: 40px; height: 46px; }
+  .companion-copy strong { font-size: 1rem; }
+  .companion-copy p { font-size: .84rem; }
+  .companion-toggle { justify-content: center; width: 44px; }
+  .companion-toggle span { display: none; }
+  .companion-actions { gap: .35rem; margin-inline: .4rem; }
+  .companion-actions a { justify-content: center; padding-inline: .4rem; font-size: .8rem; }
+  .companion-actions a span { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-motion=system] .companion-toggle i { transition: transform var(--motion-fast); }
+  [data-motion=system] .companion-actions:not([hidden]), [data-motion=system] .file-detail:not([hidden]) {
+    animation: field-note-enter var(--motion-fast) ease-out;
+  }
+  @keyframes field-note-enter { from { opacity: .4; } to { opacity: 1; } }
+}

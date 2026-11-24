@@ -11,6 +11,8 @@ class Line:
     answer: str
     after: tuple[str, ...] = ()
     evidence: tuple[str, ...] = ()
+    deduction: str | None = None
+    contradiction: str | None = None
 
 
 OPENINGS = {
@@ -42,6 +44,12 @@ FOLLOW_UPS = {
             "Both doors? Let me see those times. … I remember stepping away from the preview. I can't give you a better account of those seconds just because you have them printed out.",
             after=("alibi",),
             evidence=("badge",),
+        ),
+        "badge_confrontation": Line(
+            "You said you were in the washroom. Your card opened the corridor just before the manual blackout. Who carried it?",
+            "I did. I went into the service corridor just before midnight. I told you washroom because I wasn't supposed to be there. That's all I'm saying about the print.",
+            after=("alibi",), evidence=("badge",), deduction="opportunity",
+            contradiction="Mara retracts her washroom alibi and confirms she carried the card into the corridor.",
         ),
     },
     "ellis": {
@@ -85,6 +93,12 @@ FOLLOW_UPS = {
             "Conservation wanted the original off display before the preview. I asked them to wait until after. We had donors coming specifically to see that sheet.",
             after=("print",),
         ),
+        "treatment_conflict": Line(
+            "You said conservation asked for treatment. The request says remove the print immediately and use a marked proof. Did you know it was already fading?",
+            "Yes. I read the survey and signed the refusal. I thought one more evening under the lamps wouldn't matter. Mara knew I was keeping the original on the wall.",
+            after=("print",), evidence=("treatment",), deduction="urgency",
+            contradiction="June admits she knew about active fading when she refused the immediate substitution.",
+        ),
         "planned_outage": Line(
             "The relay log shows a manual test. Did anyone clear one with you?",
             "No. Even a ten-second interruption would have gone in the running order. I'd have had the room cleared first.",
@@ -117,11 +131,17 @@ def interview_view(state, suspect, roster=LINES, openings=OPENINGS, evidence_tit
     asked = {entry["topic"] for entry in transcript}
     options = []
     for topic, line in lines.items():
+        if line.contradiction and not state.get("reasoningVersion"):
+            continue
         option = {"id": topic, "label": line.question, "status": "available"}
         missing = [
             *(f"Ask: {lines[previous].question}" for previous in line.after if previous not in asked),
             *(f"Examine: {evidence_titles[clue]}" for clue in line.evidence if clue not in state["board"]),
         ]
+        if line.deduction and not any(item["id"] == line.deduction for item in state.get("deductions", [])):
+            missing.append("Establish the related deduction at the evidence board.")
+        if line.contradiction:
+            option["presentation"] = True
         if topic in asked:
             option["status"] = "asked"
         elif state["result"] is not None:

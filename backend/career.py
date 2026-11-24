@@ -10,6 +10,8 @@ import sqlite3
 
 from fastapi import HTTPException
 
+from . import equipment
+
 
 DETECTIVES = {
     "adrian": {
@@ -81,6 +83,7 @@ def profile(connection: sqlite3.Connection) -> dict:
     ).fetchone()
     return {
         "points": total,
+        "equipment": equipment.catalog(total),
         "solvedCases": solved_cases,
         "selectedDetective": row[0] if row else DEFAULT_DETECTIVE,
         "detectives": [
@@ -127,6 +130,8 @@ def award(connection: sqlite3.Connection, case_id: str, score: int | None) -> di
         "earned": earned,
         "points": total,
         "newUnlocks": new_unlocks,
+        "newEquipmentUnlocks": [tool["id"] for tool in equipment.TOOLS.values()
+                                if before < tool["threshold"] <= total],
         "nextUnlock": (
             {key: next_detective[key] for key in ("id", "name", "threshold")}
             if next_detective else None
