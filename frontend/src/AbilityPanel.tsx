@@ -22,7 +22,7 @@ export function AbilityPanel({ state, brief, busy, person, inInterview, onUse }:
   const hasLeverage = requiredEvidence !== undefined && Object.hasOwn(state.board, requiredEvidence)
   const files = brief.evidence.filter(clue => targets.includes(clue.id) && Object.hasOwn(state.board, clue.id))
 
-  return <aside className="field-ability" aria-label="Detective ability">
+  return <aside id="detective-ability" tabIndex={-1} className="field-ability" aria-label="Detective ability">
     <div>
       <div className="label accent">FIELD ABILITY / {state.ability ? 'USED' : 'ONE USE'}</div>
       <h3>{names[type]}</h3>
@@ -31,7 +31,11 @@ export function AbilityPanel({ state, brief, busy, person, inInterview, onUse }:
       </p> : state.result ? <p className="muted">This investigation is closed.</p> : <>
         {type === 'insight' && <p className="muted">Examine any two files, then compare their leads for an optional hint.</p>}
         {type === 'pressure' && <p className="muted">
-          Examine {pressureClue?.title} and question {pressureSuspect?.name}, then apply Pressure in their interview.
+          {hasLeverage && pressureClue && pressureSuspect
+            ? (hasInterview
+              ? `You can use Pressure in ${pressureSuspect.name}’s interview. Bring “${pressureClue.title}” into the conversation.`
+              : `Ask ${pressureSuspect.name} for an account first. Then you can follow up with “${pressureClue.title}”.`)
+            : 'Record a witness’s account and find a file that gives you grounds for a follow-up.'}
         </p>}
         {type === 'analysis' && <p className="muted">Choose an examined file for a closer forensic reading.</p>}
       </>}

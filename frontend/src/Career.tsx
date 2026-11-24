@@ -2,12 +2,8 @@ import { useState } from 'react'
 import type { CareerRewardData, CaseSummary, PlayerProfile } from './api'
 import './career.css'
 import { EquipmentCollection, ToolIcon } from './Equipment'
+import { portraits } from './detectives/portraits'
 
-const portraits: Record<string, string> = {
-  adrian: new URL('./detectives/adrian.svg', import.meta.url).href,
-  selena: new URL('./detectives/selena.svg', import.meta.url).href,
-  elias: new URL('./detectives/elias.svg', import.meta.url).href,
-}
 const detectiveNames: Record<string, string> = {
   adrian: 'Adrian Cross',
   selena: 'Selena Voss',

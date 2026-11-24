@@ -14,11 +14,13 @@ interface PortraitProps {
   suspect: string
   name: string
   className?: string
+  decorative?: boolean
 }
 
-export function Portrait({ suspect, name, className }: PortraitProps) {
+export function Portrait({ suspect, name, className, decorative }: PortraitProps) {
   const source = Object.hasOwn(artwork, suspect) ? artwork[suspect] : undefined
   if (!source) return null
+  if (decorative) return <img className="suspect-thumbnail" src={source} alt="" width="40" height="50" />
 
   return (
     <figure className={['suspect-portrait', className].filter(Boolean).join(' ')} data-suspect={suspect}>

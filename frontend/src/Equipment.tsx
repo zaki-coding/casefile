@@ -90,11 +90,10 @@ export function ExaminationScene({ examination, detail, busy, closed, onUse }: {
   </div>
 }
 
-export function Equipment({ state, brief, busy, onUpdate }: { state: Investigation; brief: CaseBrief; busy: boolean; onUpdate: (state: Investigation) => void }) {
+export function Equipment({ state, brief, busy, onUpdate, onBusy }: { state: Investigation; brief: CaseBrief; busy: boolean; onUpdate: (state: Investigation) => void; onBusy: (busy: boolean) => void }) {
   const [inventory, setInventory] = useState<EquipmentInventory>()
   const [toolId, setToolId] = useState('lens')
   const [examinationId, setExaminationId] = useState('')
-  const [working, setWorking] = useState(false)
   const [error, setError] = useState('')
   const [revision, setRevision] = useState(0)
   useEffect(() => {
@@ -108,20 +107,20 @@ export function Equipment({ state, brief, busy, onUpdate }: { state: Investigati
   const tool = inventory?.tools.find(item => item.id === toolId)
   const examination = tool?.examinations.find(item => item.id === examinationId) ?? tool?.examinations[0]
   async function use(selection: string[]) {
-    if (!examination) return
-    setWorking(true); setError('')
+    if (!examination || busy) return
+    onBusy(true); setError('')
     try {
       const updated = await api<Investigation>('/investigations/' + state.id + '/equipment', 'POST', { toolId, examinationId: examination.id, selection })
       onUpdate(updated)
     } catch (failure) { setError(failure instanceof Error ? failure.message : 'Examination failed. Try again.') }
-    finally { setWorking(false) }
+    finally { onBusy(false) }
   }
   return <section className="equipment-workbench" aria-labelledby="equipment-title">
     <header className="equipment-header"><div><p className="label accent">INVESTIGATIONS DIVISION / FIELD EQUIPMENT</p><h2 id="equipment-title">The workbench</h2>
       <p className="muted">Examine a file on the evidence board, then bring it here for a closer look.</p></div><span className="equipment-points">{inventory?.points ?? '—'}<small>CAREER POINTS</small></span></header>
     {!inventory && !error && <p role="status">Opening equipment locker…</p>}
     {inventory && <>
-      <div className="tool-rack" role="group" aria-label="Select investigation tool">{inventory.tools.map(item => <button type="button" className={'tool-card ' + (!item.unlocked ? 'is-locked' : '')} key={item.id} disabled={busy || working} aria-pressed={item.id === toolId}
+      <div className="tool-rack" role="group" aria-label="Select investigation tool">{inventory.tools.map(item => <button type="button" className={'tool-card ' + (!item.unlocked ? 'is-locked' : '')} key={item.id} disabled={busy} aria-pressed={item.id === toolId}
         onClick={() => { setToolId(item.id); setExaminationId(''); setError('') }}>
         <ToolIcon id={item.id} /><span className="label">{item.unlocked ? 'Issued / Ready' : 'Locked / ' + item.threshold + ' points'}</span><strong>{item.name}</strong>
         <small>{item.unlocked ? item.examinations.filter(exam => exam.completed).length + ' findings recorded' : item.remaining + ' more career points'}</small>
@@ -129,12 +128,12 @@ export function Equipment({ state, brief, busy, onUpdate }: { state: Investigati
       {tool && <div className="equipment-station"><aside className="equipment-manual"><p className="label accent">FIELD MANUAL</p><h3>{tool.name}</h3><p>{tool.description}</p>
         <p className="muted">Equipment complements your detective ability. Findings support deductions; your accusation is still your decision.</p>
         {!tool.unlocked && <p className="equipment-requirement">Unlocks permanently at {tool.threshold} career points. Earn {tool.remaining} more by solving unique cases. Your points are never spent.</p>}
-        {tool.unlocked && <label>Compatible examination<select value={examination?.id ?? ''} disabled={busy || working} onChange={event => { setExaminationId(event.target.value); setError('') }}>
+        {tool.unlocked && <label>Compatible examination<select value={examination?.id ?? ''} disabled={busy} onChange={event => { setExaminationId(event.target.value); setError('') }}>
           {tool.examinations.map(item => <option value={item.id} key={item.id}>{item.title}{item.completed ? ' · Recorded' : item.available ? '' : ' · Examine sources first'}</option>)}
         </select></label>}
         {examination && tool.unlocked && <ul className="equipment-sources">{examination.sources.map(id => <li key={id}>{state.board[id] ? '✓ ' : '○ '}{brief.evidence.find(item => item.id === id)?.title ?? id}</li>)}</ul>}
       </aside>
-        {tool.unlocked && examination ? <ExaminationScene key={state.id + examination.id} examination={examination} detail={state.board[examination.target]} busy={busy || working} closed={!!state.result} onUse={selection => void use(selection)} /> : <div className="sealed-equipment"><ToolIcon id={tool.id} /><p>{tool.unlocked ? 'No compatible examinations in this case.' : 'Reserved for your next career milestone'}</p></div>}
+        {tool.unlocked && examination ? <ExaminationScene key={state.id + examination.id} examination={examination} detail={state.board[examination.target]} busy={busy} closed={!!state.result} onUse={selection => void use(selection)} /> : <div className="sealed-equipment"><ToolIcon id={tool.id} /><p>{tool.unlocked ? 'No compatible examinations in this case.' : 'Reserved for your next career milestone'}</p></div>}
       </div>}
       <section className="equipment-notes" aria-labelledby="equipment-notes-title"><p className="label accent">PERSISTENT INVESTIGATION RECORD</p><h3 id="equipment-notes-title">Field notes</h3>
         {inventory.findings.length ? inventory.findings.map(finding => <article key={finding.id}><span className="label">{inventory.tools.find(item => item.id === finding.toolId)?.name}</span><h4>{finding.title}</h4><p>{finding.message}</p></article>) : <p className="muted">New observations will be saved here with this investigation.</p>}

@@ -9,6 +9,7 @@ interface VerdictProps {
   busy: boolean
   onRestart: () => void
   title?: string
+  location?: string
   careerReward?: ReactNode
   actions?: ReactNode
 }
@@ -32,12 +33,13 @@ function Finding({ label, correct }: { label: string; correct: boolean }) {
   </span>
 }
 
-export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof', careerReward, actions }: VerdictProps) {
+export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof', location, careerReward, actions }: VerdictProps) {
   const { details } = result
   const categories = result.maximums
     ? Object.entries(result.maximums).map(([label, maximum]) => ({ label, maximum }))
     : scoring
   const heading = useRef<HTMLHeadingElement>(null)
+  const Heading = location ? 'h1' : 'h2'
 
   useEffect(() => {
     heading.current?.focus()
@@ -47,7 +49,8 @@ export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof',
     <header className="closing-header">
       <div>
         <p className="closing-kicker">Final report / {title}</p>
-        <h2 id="closing-title" ref={heading} tabIndex={-1}>{result.solved ? 'Case Closed' : 'Case Unsolved'}</h2>
+        <Heading id="closing-title" ref={heading} tabIndex={-1}>{result.solved ? (location ? 'Case Solved' : 'Case Closed') : 'Case Unsolved'}</Heading>
+        {location && <p className="closing-location">{location}</p>}
         <p>{performance(result)}</p>
       </div>
       <div className="closing-score"><strong>{result.score}</strong><span>/ 100 points</span></div>
@@ -63,7 +66,7 @@ export function Verdict({ result, busy, onRestart, title = 'The Midnight Proof',
 
     {details && <section className="closing-section" aria-labelledby="closing-timeline-title">
       <p className="closing-kicker">Sequence of events</p>
-      <h3 id="closing-timeline-title">Reconstructing midnight</h3>
+      <h3 id="closing-timeline-title">Case reconstruction</h3>
       <ol className="closing-timeline">
         {details.timeline.map((event, index) => <li key={event.title + index}>
           <span className="closing-time">{event.time}</span>

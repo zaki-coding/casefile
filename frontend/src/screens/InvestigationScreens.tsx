@@ -10,20 +10,62 @@ import { paths, type GameScreen } from '../navigation'
 import { ScreenHeading } from './SetupScreens'
 
 export type InvestigationProps = { state: Investigation; brief: CaseBrief; busy: boolean; update: (path: string, data?: unknown) => void }
-export function EvidenceScreen({ state, brief, busy, update }: InvestigationProps) {
-  return <><ScreenHeading label="01 / EVIDENCE ROOM" title="Evidence board"><p className="muted">Pin the facts. Find the gaps between them.</p></ScreenHeading><AbilityPanel state={state} brief={brief} person={brief.suspects[0].id} busy={busy} inInterview={false} onUse={(type,target) => update('/ability',{type,target})} />
-    {state.reasoningVersion && <EvidenceConnections state={state} brief={brief} busy={busy} update={update} />}
-    <div className="cards evidence-files">{brief.evidence.map((clue,index) => <article key={clue.id}><div className="label accent">FILE {String(index+1).padStart(2,'0')}{state.board[clue.id] ? ' / PINNED' : ''}</div><h3>{clue.title}</h3><p className="muted">{clue.source}</p>{state.board[clue.id] ? <p>{state.board[clue.id]}</p> : <button disabled={busy || !!state.result} onClick={() => update('/evidence/'+clue.id)}>Examine file →</button>}</article>)}</div></>
+
+function EvidenceFile({ file, number, detail, busy, closed, examine }: {
+  file: CaseBrief['evidence'][number]; number: number; detail?: string; busy: boolean; closed: boolean; examine: () => void
+}) {
+  const [folded, setFolded] = useState(false)
+  const examined = detail !== undefined
+  const titleId = 'file-title-' + file.id
+  const detailId = 'file-detail-' + file.id
+  return <article aria-labelledby={titleId} className={'evidence-file' + (examined ? ' is-examined' : '')}>
+    <header><span className="label">File {String(number).padStart(2, '0')}</span>
+      <span className="file-status">{examined ? '✓ Pinned' : 'Unexamined'}</span></header>
+    <h3 id={titleId}>{file.title}</h3>
+    <p className="file-source">{file.source}</p>
+    <div id={detailId} hidden={!examined || folded} className="file-detail">{detail}</div>
+    {(!closed || examined) && <button type="button" aria-expanded={examined && !folded} aria-controls={detailId}
+      disabled={!examined && busy} onClick={() => examined ? setFolded(!folded) : examine()}>
+      {examined ? folded ? 'Read pinned file' : 'Fold file' : 'Examine file'} <span aria-hidden="true">{examined && !folded ? '↑' : '↓'}</span>
+    </button>}
+  </article>
 }
-export function InterviewsScreen({ state, brief, busy, update, onUpdate, onBusy }: InvestigationProps & { onUpdate: (s: Investigation) => void; onBusy: (b: boolean) => void }) {
+
+export function EvidenceScreen({ state, brief, busy, update }: InvestigationProps) {
+  const pinned = Object.keys(state.board).length
+  return <><ScreenHeading label="01 / EVIDENCE ROOM" title="Evidence board">
+    <p>{state.result ? 'Review the files pinned during this investigation.' : 'Examine a file to pin its contents to the board.'}</p>
+  </ScreenHeading>
+    <section aria-labelledby="evidence-files-title">
+      <div className="file-index-heading"><h2 id="evidence-files-title">Case files</h2>
+        <span>{pinned} of {brief.evidence.length} examined</span></div>
+      <div className="cards evidence-files">{brief.evidence.map((file, index) =>
+        <EvidenceFile key={file.id} file={file} number={index + 1} detail={state.board[file.id]}
+          busy={busy} closed={!!state.result} examine={() => update('/evidence/' + file.id)} />
+      )}</div>
+    </section>
+    {state.reasoningVersion && <EvidenceConnections state={state} brief={brief} busy={busy} update={update} />}
+    <AbilityPanel state={state} brief={brief} person={brief.suspects[0].id} busy={busy} inInterview={false}
+      onUse={(type,target) => update('/ability',{type,target})} />
+  </>
+}
+export function InterviewsScreen({ state, brief, busy, update, detectiveName, onUpdate, onBusy }: InvestigationProps & { detectiveName?: string; onUpdate: (s: Investigation) => void; onBusy: (b: boolean) => void }) {
   const [person,setPerson] = useState(() => {
     const saved = sessionStorage.getItem('casefile-suspect-'+state.id)
     return brief.suspects.some(s => s.id === saved) ? saved! : brief.suspects[0].id
   })
-  return <><ScreenHeading label="02 / WITNESS ACCOUNTS" title="Suspect interviews"><p className="muted">One room. Competing versions of the truth.</p></ScreenHeading><AbilityPanel state={state} brief={brief} person={person} busy={busy} inInterview onUse={(type,target) => update('/ability',{type,target})} /><Interview key={state.id+person} id={state.id} person={person} suspects={brief.suspects} examinedFiles={brief.evidence.filter(file => Object.hasOwn(state.board, file.id))} closed={!!state.result} busy={busy} pressureUsed={state.ability?.type==='pressure'} onSelect={id => { sessionStorage.setItem('casefile-suspect-'+state.id,id); setPerson(id) }} onUpdate={onUpdate} onBusy={onBusy} /></>
+  return <><ScreenHeading label="02 / WITNESS ACCOUNTS" title="Suspect interviews">
+    <p>Choose a witness to read their statement and follow up.</p></ScreenHeading>
+    <Interview key={state.id+person} id={state.id} person={person} suspects={brief.suspects} detectiveName={detectiveName}
+      examinedFiles={brief.evidence.filter(file => Object.hasOwn(state.board, file.id))} closed={!!state.result}
+      busy={busy} pressureUsed={state.ability?.type==='pressure'} onSelect={id => {
+        sessionStorage.setItem('casefile-suspect-'+state.id,id); setPerson(id)
+      }} onUpdate={onUpdate} onBusy={onBusy} />
+    <AbilityPanel state={state} brief={brief} person={person} busy={busy} inInterview onUse={(type,target) => update('/ability',{type,target})} />
+  </>
 }
-export function EquipmentScreen({state,brief,busy,onUpdate}: Omit<InvestigationProps,'update'> & {onUpdate:(s:Investigation)=>void}) {
-  return <><ScreenHeading label="03 / FIELD INSTRUMENTS" title="Detective equipment"><p className="muted">Bring the evidence into focus.</p></ScreenHeading><Equipment state={state} brief={brief} busy={busy} onUpdate={onUpdate} /></>
+export function EquipmentScreen({state,brief,busy,onUpdate,onBusy}: Omit<InvestigationProps,'update'> & {onUpdate:(s:Investigation)=>void;onBusy:(busy:boolean)=>void}) {
+  return <><ScreenHeading label="03 / FIELD INSTRUMENTS" title="Detective equipment"><p className="muted">Bring the evidence into focus.</p></ScreenHeading><Equipment state={state} brief={brief} busy={busy} onUpdate={onUpdate} onBusy={onBusy} /></>
 }
 type Theory = {suspect:string;method:string;evidence:string[]}
 export function restoreTheory(raw:string|null):Theory {
@@ -43,15 +85,24 @@ function OriginalAccusation({state,brief,busy,update}:InvestigationProps) {
 }
 export function ResultsScreen({state,brief,profile,onReplay}:{state:Investigation;brief:CaseBrief;profile:PlayerProfile;onReplay:()=>void}) {
   if(!state.result)return null
-  return <><ScreenHeading label="FINAL VERDICT / BUREAU RECORD" title={state.result.solved?'Case Solved':'Case Unsolved'}><p className="muted">{brief.title} · {brief.location}</p></ScreenHeading><Verdict result={state.result} title={brief.title} busy={false} onRestart={()=>{window.location.hash='#/'}} actions={<div className="results-actions"><a className="button-link primary" href="#/">Return to Main Menu</a><button onClick={onReplay}>Replay Case</button><a className="button-link" href={'#'+paths.game(state.id,'evidence')}>Review Evidence</a></div>} careerReward={state.result.career?<CareerReward reward={state.result.career} profile={profile}/>:<p className="closing-section muted">This legacy verdict predates career reward reports. Your permanent career record remains available from the main menu.</p>}/></>
+  return <Verdict result={state.result} title={brief.title} location={brief.location} busy={false} onRestart={()=>{window.location.hash='#/'}} actions={<div className="results-actions"><a className="button-link primary" href="#/">Return to Main Menu</a><button onClick={onReplay}>Replay Case</button><a className="button-link" href={'#'+paths.game(state.id,'evidence')}>Review Evidence</a></div>} careerReward={state.result.career?<CareerReward reward={state.result.career} profile={profile}/>:<p className="closing-section muted">This legacy verdict predates career reward reports. Your permanent career record remains available from the main menu.</p>}/>
 }
-export const rooms: {id:GameScreen;label:string;note:string}[] = [
-  {id:'evidence',label:'Evidence Board',note:'EXAMINE THE RECORD'},
-  {id:'interviews',label:'Suspect Interviews',note:'COMPARE ACCOUNTS'},
-  {id:'equipment',label:'Detective Equipment',note:'FOLLOW THE TRACES'},
-  {id:'accusation',label:'Accusation',note:'BUILD YOUR CASE'},
+export const rooms: {id:GameScreen;label:string}[] = [
+  {id:'evidence',label:'Evidence Board'},
+  {id:'interviews',label:'Suspect Interviews'},
+  {id:'equipment',label:'Detective Equipment'},
+  {id:'accusation',label:'Accusation'},
 ]
 export function GameNavigation({state,brief,screen,detective}:{state:Investigation;brief:CaseBrief;screen:GameScreen;detective:string}) {
-  const links=state.result?[...rooms.filter(r=>r.id!=='accusation'),{id:'verdict' as const,label:'Final Verdict',note:'CLOSED DOSSIER'}]:rooms
-  return <aside className="game-rail"><a href="#/" className="menu-back">← Main Menu</a><div className="game-context"><p className="label accent">CASE {brief.number}</p><h2>{brief.title}</h2><p className="muted">{detective}</p><p className="label">{state.result?'CASE CLOSED':'INVESTIGATION OPEN'}</p></div><nav className="game-nav" aria-label="Investigation rooms">{links.map((room,index)=><a key={room.id} className={screen===room.id?'is-active':''} aria-current={screen===room.id?'page':undefined} href={'#'+paths.game(state.id,room.id)}><small>0{index+1} / {room.note}</small><span>{room.label}</span></a>)}</nav><p className="label muted">{Object.keys(state.board).length}/{brief.evidence.length} FILES EXAMINED<br/>{state.interviews.length} RECORDED ANSWERS</p><a href="#/continue" className="menu-back">Dossier Archive →</a></aside>
+  const links=state.result?[...rooms.filter(r=>r.id!=='accusation'),{id:'verdict' as const,label:'Final Verdict'}]:rooms
+  return <aside className="game-rail">
+    <a href="#/" className="menu-back">← Main Menu</a>
+    <div className="game-context"><p className="label accent">Case {brief.number}</p><h2>{brief.title}</h2>
+      <p className="muted">{detective} · {state.result?'Closed':'Open'}</p></div>
+    <nav className="game-nav" aria-label="Investigation rooms">{links.map(room =>
+      <a key={room.id} className={screen===room.id?'is-active':''} aria-current={screen===room.id?'page':undefined} href={'#'+paths.game(state.id,room.id)}>
+        <span>{room.label}</span></a>)}</nav>
+    <p className="rail-counts">{Object.keys(state.board).length}/{brief.evidence.length} files examined<br/>{state.interviews.length} recorded {state.interviews.length === 1 ? 'answer' : 'answers'}</p>
+    <a href="#/continue" className="menu-back">Dossier Archive →</a>
+  </aside>
 }

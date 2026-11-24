@@ -5,5 +5,6 @@ import './progression.css'
 import './tokens.css'
 import './noir.css'
 import './screens.css'
+import './detectives/companion.css'
 
 createRoot(document.getElementById('root')!).render(<App />)

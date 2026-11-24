@@ -3,13 +3,9 @@ import type { CaseSummary, PlayerProfile, SavedInvestigation } from '../api'
 import { paths } from '../navigation'
 import { CaseArtwork } from '../CaseArtwork'
 import { EquipmentCollection } from '../Equipment'
+import { portraits } from '../detectives/portraits'
 import '../career.css'
 
-export const portraits: Record<string, string> = {
-  adrian: new URL('../detectives/adrian.svg', import.meta.url).href,
-  selena: new URL('../detectives/selena.svg', import.meta.url).href,
-  elias: new URL('../detectives/elias.svg', import.meta.url).href,
-}
 export type Detective = PlayerProfile['detectives'][number]
 export function ScreenHeading({ label, title, children }: { label: string; title: string; children?: ReactNode }) {
   return <header className="screen-heading"><p className="label accent">{label}</p><h1 tabIndex={-1}>{title}</h1>{children}</header>
@@ -63,7 +59,17 @@ export function CaseBriefing({ detective, dossier, solved, busy, onBegin }: { de
     </div></section></>
 }
 export function ContinueScreen({ saves, cases, profile, latest }: { saves: SavedInvestigation[]; cases: CaseSummary[]; profile: PlayerProfile; latest?: string }) {
-  return <><Back to="/">Main Menu</Back><ScreenHeading label="BUREAU ARCHIVE / PERSISTENT RECORDS" title="Continue investigation"><p className="muted">Every file, interview and finding is kept with its investigation.</p></ScreenHeading><section className="save-archive"><h2>Saved investigations</h2>{!saves.length ? <p>No investigations yet. <a href={'#' + paths.detectives}>Open your first case.</a></p> : <ul>{[...saves].sort((a,b) => Number(b.id === latest) - Number(a.id === latest)).map((save,index) => <li key={save.id}><a className="archive-link" href={'#' + paths.game(save.id, save.closed ? 'verdict' : 'evidence')}><span className="label">DOSSIER {String(index+1).padStart(2,'0')}{save.id === latest ? ' / LAST OPENED' : ''}</span><strong>{cases.find(c => c.id === save.caseId)?.title ?? save.caseId}</strong><span className="muted">{profile.detectives.find(d => d.id === save.detectiveId)?.name} · {save.closed ? 'Read final verdict →' : 'Resume investigation →'}</span><small className="muted">Record {save.id.slice(0,8)}</small></a></li>)}</ul>}</section></>
+  return <><Back to="/">Main Menu</Back><ScreenHeading label="BUREAU ARCHIVE / PERSISTENT RECORDS" title="Continue investigation">
+    <p className="muted">Every file, interview and finding is kept with its investigation.</p></ScreenHeading>
+    <section className="save-archive"><h2>Saved investigations</h2>{!saves.length
+      ? <p>No investigations yet. <a href={'#' + paths.detectives}>Open your first case.</a></p>
+      : <ul>{[...saves].sort((a,b) => Number(b.id === latest) - Number(a.id === latest)).map(save =>
+        <li key={save.id}><a className="archive-link" href={'#' + paths.game(save.id, save.closed ? 'verdict' : 'evidence')}>
+          <img src={portraits[save.detectiveId]} alt="" width="52" height="60" />
+          <div><span className="label">Record {save.id.slice(0,8)}{save.id === latest ? ' / Last opened' : ''}</span>
+            <strong>{cases.find(c => c.id === save.caseId)?.title ?? save.caseId}</strong>
+            <span className="muted">{profile.detectives.find(d => d.id === save.detectiveId)?.name} · {save.closed ? 'Read final verdict →' : 'Resume investigation →'}</span>
+          </div></a></li>)}</ul>}</section></>
 }
 export function CareerScreen({ profile }: { profile: PlayerProfile }) {
   return <><Back to="/">Main Menu</Back><ScreenHeading label="PERSONNEL / CAREER RECORD" title="Detective career"><p className="muted">Each unique solved case advances your career. Unlocks are permanent; points are never spent.</p></ScreenHeading><div className="career-statline"><div><strong>{profile.points}</strong><span>Career points</span></div><div><strong>{profile.solvedCases.length}</strong><span>Unique cases solved</span></div><div><strong>{profile.detectives.filter(d => d.unlocked).length}</strong><span>Detectives available</span></div></div>

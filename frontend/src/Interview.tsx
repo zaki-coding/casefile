@@ -10,6 +10,7 @@ interface Props {
   closed: boolean
   busy: boolean
   pressureUsed: boolean
+  detectiveName?: string
   examinedFiles?: CaseBrief['evidence']
   onSelect: (id: string) => void
   onUpdate: (state: Investigation) => void
@@ -56,7 +57,7 @@ export function InterviewOptions({ options, closed, disabled, onAsk, examinedFil
   </div>
 }
 
-export function Interview({ id, suspects, person, closed, busy, pressureUsed, examinedFiles, onSelect, onUpdate, onBusy }: Props) {
+export function Interview({ id, suspects, person, closed, busy, pressureUsed, detectiveName = 'Detective', examinedFiles, onSelect, onUpdate, onBusy }: Props) {
   const [scene, setScene] = useState<InterviewScene>()
   const [pending, setPending] = useState('')
   const [error, setError] = useState('')
@@ -97,10 +98,10 @@ export function Interview({ id, suspects, person, closed, busy, pressureUsed, ex
     <h2 id="interview-title">Interview room</h2>
     <p className="muted">Compare accounts, pursue follow-ups, and bring evidence into the room.</p>
     <div className="interview-roster" aria-label="Choose a suspect">
-      {suspects.map((item, index) => <button key={item.id} aria-pressed={item.id === person}
+      {suspects.map(item => <button key={item.id} aria-pressed={item.id === person}
         disabled={busy} onClick={() => onSelect(item.id)}>
-        <span className="label">0{index + 1}</span>
-        <strong>{item.name}</strong><span className="muted">{item.role}</span>
+        <Portrait suspect={item.id} name={item.name} decorative />
+        <span><strong>{item.name}</strong><small>{item.role}</small></span>
       </button>)}
     </div>
     <div className="interview-stage">
@@ -112,19 +113,19 @@ export function Interview({ id, suspects, person, closed, busy, pressureUsed, ex
         </div>
       </div>
       <div className="interview-record">
-        <div className="interview-record-header label"><span>Conversation transcript</span><span>{scene?.transcript.length ?? 0} exchanges</span></div>
+        <div className="interview-record-header label"><span>Conversation transcript</span><span>{scene?.transcript.length ?? 0} {scene?.transcript.length === 1 ? 'exchange' : 'exchanges'}</span></div>
         <div className="interview-transcript" ref={transcript} role="log" aria-label={suspect.name + ' transcript'} tabIndex={0}>
           {scene && <>
             <div className="interview-line"><span className="label accent">{suspect.name}</span><p>{scene.opening}</p></div>
             {scene.transcript.map(entry => <div className="interview-exchange" key={entry.topic}>
-              <div className="interview-line investigator"><span className="label">Detective</span><p>{entry.question}</p>
+              <div className="interview-line investigator"><span className="label">{detectiveName}</span><p>{entry.question}</p>
                 {entry.evidence && <small>Presented: {examinedFiles?.find(file => file.id === entry.evidence)?.title ?? entry.evidence}</small>}
               </div>
               <div className="interview-line"><span className="label accent">{suspect.name}</span><p>{entry.answer}</p></div>
               {entry.contradiction && <p className="recorded-contradiction"><strong>Contradiction recorded.</strong> {entry.contradiction}</p>}
             </div>)}
             {pending && !scene.transcript.some(entry => entry.topic === pending) && <div className="interview-line investigator">
-              <span className="label">Detective</span><p>{scene.options.find(option => option.id === pending)?.label}</p>
+              <span className="label">{detectiveName}</span><p>{scene.options.find(option => option.id === pending)?.label}</p>
             </div>}
           </>}
           {!scene && !error && <p role="status">Opening interview record…</p>}
