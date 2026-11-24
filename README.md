@@ -1,6 +1,20 @@
 # ◈ Casefile AI
 
-**A local detective bureau with two playable mysteries**
+**An interactive detective game built with React, TypeScript, FastAPI, and SQLite.**
+
+Explore two original mysteries, examine evidence, interview suspects, and submit a final accusation. Your investigations and detective progression are saved locally.
+
+**Project status:** Playable locally; there is no hosted web demo yet. The current interviews and case outcomes are scripted and deterministic — despite the name, this version does not use a generative AI model or API. Optional local AI dialogue is on the roadmap.
+
+**What this project demonstrates:**
+- React and TypeScript frontend with a typed API client
+- FastAPI endpoints backed by SQLite persistence and transaction-safe career rewards
+- Branching interviews, evidence-linked progression, and testable game rules
+- Automated backend/frontend tests and a GitHub Actions production-build check
+
+![Tests](https://github.com/zaki-coding/casefile-ai/actions/workflows/test.yml/badge.svg)
+
+**The two playable cases**
 
 - **001 · The Midnight Proof.** A blackout at Bellweather Printworks conceals a lithograph swap.
 - **002 · The Ninth Sounding.** A recorder vanishes during lockdown at Kestrel Tide Observatory. Four suspects and ten evidence files offer competing explanations.
